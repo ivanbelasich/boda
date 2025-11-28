@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 
 // ⚠️ CONFIGURACIÓN - Pegar aquí la URL del Google Apps Script
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyp5QfM4b2eSbAL8uOxlBrPmqs0uu5U7w_7JgWn_nqjkw1MMboljQNdZmapV0ssy-Jw/exec' // Ejemplo: 'https://script.google.com/macros/s/xxx/exec'
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxTns_YmmTBSLVTXKdj1YulHiiRxVjppz4bFYhE7C9YPNwaFuGd9_4QsJZ5auA0jOGV/exec' // Ejemplo: 'https://script.google.com/macros/s/xxx/exec'
 
 // Intervalo de actualización (en milisegundos)
 const REFRESH_INTERVAL = 5000 // 5 segundos
@@ -95,8 +95,8 @@ function Presentacion() {
   if (photos.length === 0) {
     return (
       <div className="min-h-screen bg-boda-text flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-24 h-24 mx-auto mb-8 border-4 border-boda border-t-transparent rounded-full animate-spin" />
+        <div className="text-center flex flex-col items-center">
+          <div className="w-24 h-24 mb-8 border-4 border-boda border-t-transparent rounded-full animate-spin" />
           <h2 className="font-display text-3xl text-boda mb-4">
             Esperando fotos...
           </h2>

@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react'
 
 // ⚠️ CONFIGURACIÓN - Pegar aquí la URL del Google Apps Script
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyp5QfM4b2eSbAL8uOxlBrPmqs0uu5U7w_7JgWn_nqjkw1MMboljQNdZmapV0ssy-Jw/exec' // Ejemplo: 'https://script.google.com/macros/s/xxx/exec'
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxTns_YmmTBSLVTXKdj1YulHiiRxVjppz4bFYhE7C9YPNwaFuGd9_4QsJZ5auA0jOGV/exec' // Ejemplo: 'https://script.google.com/macros/s/xxx/exec'
 
 type UploadStatus = 'idle' | 'selecting' | 'uploading' | 'success' | 'error'
 
