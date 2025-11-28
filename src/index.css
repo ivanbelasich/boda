@@ -3,10 +3,10 @@
 /* Colores de la boda */
 @theme {
   --color-boda: #c59e81;
-  --color-boda-light: #e8d4c4;
+  --color-boda-light: #e1d4cc;
   --color-boda-dark: #a07a5c;
-  --color-boda-cream: #faf6f2;
-  --color-boda-text: #4a3728;
+  --color-boda-cream: #ffffff;
+  --color-boda-text: #2f2f2f;
 
   --font-display: "Playfair Display", serif;
   --font-body: "Cormorant Garamond", serif;

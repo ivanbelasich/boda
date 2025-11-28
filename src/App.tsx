@@ -150,7 +150,7 @@ function App() {
   }
 
   const getButtonClass = () => {
-    const baseClass = "animate-fade-in-up-delay-3 group relative px-20 py-7 font-body text-xl tracking-wide rounded-full shadow-lg transition-all duration-300 cursor-pointer active:scale-95"
+    const baseClass = "animate-fade-in-up-delay-3 group relative !px-4 !py-2 font-body text-xl tracking-wide rounded-full shadow-lg transition-all duration-300 cursor-pointer active:scale-95"
     
     switch (status) {
       case 'success':
@@ -158,9 +158,9 @@ function App() {
       case 'error':
         return `${baseClass} bg-red-500 text-white shadow-red-500/30`
       case 'uploading':
-        return `${baseClass} bg-boda/70 text-white shadow-boda/30 cursor-wait`
+        return `${baseClass} bg-boda-light text-boda-text shadow-boda-light/30 cursor-wait`
       default:
-        return `${baseClass} bg-boda text-white shadow-boda/30 hover:bg-boda-dark hover:shadow-xl hover:shadow-boda/40 hover:scale-105`
+        return `${baseClass} bg-boda-light text-boda-text shadow-boda-light/30 hover:bg-boda hover:text-white hover:shadow-xl hover:shadow-boda/40 hover:scale-105`
     }
   }
 
@@ -215,8 +215,8 @@ function App() {
         </div>
 
         {/* Fecha */}
-        <div className="animate-fade-in-up-delay-2 text-center mb-16">
-          <p className="font-display text-2xl sm:text-3xl text-boda-text mb-4">
+        <div className="animate-fade-in-up-delay-2 text-center" style={{ marginBottom: '1rem' }}>
+          <p className="font-display text-2xl sm:text-3xl text-boda-text" style={{ marginBottom: '0.75rem' }}>
             Sábado 29 de Noviembre
           </p>
           <p className="font-display text-4xl sm:text-5xl text-boda font-semibold">
@@ -225,12 +225,12 @@ function App() {
         </div>
 
         {/* Mensaje */}
-        <p className="animate-fade-in-up-delay-3 font-body text-lg sm:text-xl text-boda-text/80 text-center max-w-md mb-12 leading-relaxed">
+        <p className="animate-fade-in-up-delay-3 font-body text-lg sm:text-xl text-boda-text/80 text-center max-w-md leading-relaxed" style={{ marginBottom: '1rem' }}>
           ¡Comparte tus momentos con nosotros!
         </p>
 
         {/* Aviso de proyección */}
-        <div className="animate-fade-in-up-delay-3 bg-boda/10 border border-boda/30 rounded-2xl px-6 py-4 mb-16 max-w-sm text-center">
+        <div className="animate-fade-in-up-delay-3 bg-boda/10 border border-boda/30 rounded-2xl px-6 py-4 max-w-sm text-center" style={{ marginBottom: '2.5rem' }}>
           <p className="font-body text-boda-text/90 text-base leading-relaxed">
             Las fotos que subas serán proyectadas
             <span className="font-semibold text-boda-dark"> esta misma noche </span>
@@ -243,6 +243,7 @@ function App() {
           onClick={handleUploadClick}
           disabled={status === 'uploading'}
           className={getButtonClass()}
+          style={{ paddingLeft: '2rem', paddingRight: '2rem', paddingTop: '1rem', paddingBottom: '1rem' }}
         >
           {getButtonContent()}
         </button>
