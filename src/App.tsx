@@ -150,7 +150,7 @@ function App() {
   }
 
   const getButtonClass = () => {
-    const baseClass = "animate-fade-in-up-delay-3 group relative px-12 py-5 font-body text-xl tracking-wide rounded-full shadow-lg transition-all duration-300 cursor-pointer active:scale-95"
+    const baseClass = "animate-fade-in-up-delay-3 group relative px-20 py-7 font-body text-xl tracking-wide rounded-full shadow-lg transition-all duration-300 cursor-pointer active:scale-95"
     
     switch (status) {
       case 'success':
@@ -215,8 +215,8 @@ function App() {
         </div>
 
         {/* Fecha */}
-        <div className="animate-fade-in-up-delay-2 text-center mb-8">
-          <p className="font-display text-2xl sm:text-3xl text-boda-text mb-2">
+        <div className="animate-fade-in-up-delay-2 text-center mb-16">
+          <p className="font-display text-2xl sm:text-3xl text-boda-text mb-4">
             Sábado 29 de Noviembre
           </p>
           <p className="font-display text-4xl sm:text-5xl text-boda font-semibold">
@@ -225,12 +225,12 @@ function App() {
         </div>
 
         {/* Mensaje */}
-        <p className="animate-fade-in-up-delay-3 font-body text-lg sm:text-xl text-boda-text/80 text-center max-w-md mb-6 leading-relaxed">
+        <p className="animate-fade-in-up-delay-3 font-body text-lg sm:text-xl text-boda-text/80 text-center max-w-md mb-12 leading-relaxed">
           ¡Comparte tus momentos con nosotros!
         </p>
 
         {/* Aviso de proyección */}
-        <div className="animate-fade-in-up-delay-3 bg-boda/10 border border-boda/30 rounded-2xl px-6 py-4 mb-10 max-w-sm text-center">
+        <div className="animate-fade-in-up-delay-3 bg-boda/10 border border-boda/30 rounded-2xl px-6 py-4 mb-16 max-w-sm text-center">
           <p className="font-body text-boda-text/90 text-base leading-relaxed">
             Las fotos que subas serán proyectadas
             <span className="font-semibold text-boda-dark"> esta misma noche </span>
