@@ -7,6 +7,7 @@ Plataforma para eventos (bodas, quinceañeras, fiestas) que permite crear landin
 - [Setup de Supabase](docs/supabase-schema.sql) - Schema SQL para la base de datos
 - [Configuración de Google Drive](docs/google-drive-setup.md) - Guía paso a paso
 - [Temas y personalización](docs/temas.md) - Presets y customización visual
+- [Roadmap detallado](docs/roadmap.md) - Plan de desarrollo y especificaciones
 
 ## Features
 
@@ -187,10 +188,24 @@ npm run lint     # Linter
 
 ## Roadmap
 
-- [ ] Más secciones: cuenta regresiva, mapa, regalo
-- [ ] Panel de administración
-- [ ] Autenticación de invitados
-- [ ] Galería descargable post-evento
+### Fase 1: Core (MVP Completo)
+- [ ] Countdown (cuenta regresiva)
+- [ ] Location (ubicaciones múltiples: ceremonia/fiesta)
+- [ ] Gift (datos bancarios + lista de regalos)
+- [ ] DressCode (info de vestimenta)
+- [ ] Calendar (agendar en Google/Outlook/Apple)
+
+### Fase 2: Engagement
+- [ ] RSVP (confirmación vía formulario externo)
+- [ ] Instagram (cuenta del evento)
+- [ ] InfoUtil (hoteles, traslados)
+
+### Fase 3: Premium
+- [ ] Playlist (sugerencias de canciones vía formulario)
+- [ ] BackgroundMusic (música de fondo)
+- [ ] Panel Admin
+
+Ver especificaciones detalladas en [docs/roadmap.md](docs/roadmap.md)
 
 ## Licencia
 
