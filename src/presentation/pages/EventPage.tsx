@@ -99,6 +99,9 @@ export function EventPage() {
             key={`upload-${index}`}
             data={section}
             script_url={event.drive_script_url}
+            upload_start_time={event.upload_start_time}
+            upload_end_time={event.upload_end_time}
+            event_date={event.event_date}
           />
         );
       case 'gallery':

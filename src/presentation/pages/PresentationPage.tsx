@@ -1,27 +1,19 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import type { Event } from '../../domain/event/Event';
 import { createSupabaseEventRepository } from '../../infrastructure/supabase/SupabaseEventRepository';
+import { getDriveImageUrl } from '../../infrastructure/drive/DriveService';
 import { useEventTheme } from '../hooks/useEventTheme';
+import { usePhotoSlideshow } from '../hooks/usePhotoSlideshow';
+import { formatFullDate, formatTime } from '../utils/date-formatters';
 
 // Intervals (configurable via env vars)
-const REFRESH_INTERVAL = Number(import.meta.env.VITE_PHOTO_REFRESH_INTERVAL) || 15000; // 15 seconds default
-const SLIDE_DURATION = Number(import.meta.env.VITE_SLIDE_DURATION) || 6000; // 6 seconds per photo
-
-interface Photo {
-  id: string;
-  url: string;
-  name: string;
-  timestamp: number;
-}
+const REFRESH_INTERVAL = Number(import.meta.env.VITE_PHOTO_REFRESH_INTERVAL) || 15000;
+const SLIDE_DURATION = Number(import.meta.env.VITE_SLIDE_DURATION) || 6000;
 
 type LoadingState = 'loading' | 'success' | 'not_found' | 'error';
 
 const event_repository = createSupabaseEventRepository();
-
-function getDriveImageUrl(photo: Photo): string {
-  return `https://drive.google.com/thumbnail?id=${photo.id}&sz=w1600`;
-}
 
 export function PresentationPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -29,15 +21,23 @@ export function PresentationPage() {
   // Event state
   const [event, setEvent] = useState<Event | null>(null);
   const [loading_state, setLoadingState] = useState<LoadingState>('loading');
-  
-  // Photos state
-  const [photos, setPhotos] = useState<Photo[]>([]);
-  const [current_index, setCurrentIndex] = useState(0);
-  const [is_transitioning, setIsTransitioning] = useState(false);
-  const [last_photo_count, setLastPhotoCount] = useState(0);
-  const [should_show_new_photo_alert, setShouldShowNewPhotoAlert] = useState(false);
 
   const theme_vars = useEventTheme(event?.theme);
+
+  // Photo slideshow
+  const {
+    photos,
+    current_index,
+    current_photo,
+    is_transitioning,
+    has_new_photo,
+    goToPhoto,
+  } = usePhotoSlideshow({
+    script_url: event?.drive_script_url,
+    refresh_interval: REFRESH_INTERVAL,
+    slide_duration: SLIDE_DURATION,
+    is_enabled: loading_state === 'success',
+  });
 
   // Update page title dynamically
   useEffect(() => {
@@ -75,70 +75,6 @@ export function PresentationPage() {
 
     loadEvent();
   }, [slug]);
-
-  const drive_script_url = event?.drive_script_url;
-
-  // Fetch photos from Drive
-  const fetchPhotos = useCallback(async () => {
-    if (!drive_script_url) {
-      console.log('No drive_script_url configured');
-      return;
-    }
-
-    try {
-      const response = await fetch(`${drive_script_url}?action=list`, {
-        method: 'GET',
-        redirect: 'follow',
-      });
-      
-      const data = await response.json();
-      
-      if (data.success && data.photos) {
-        const new_photos = data.photos as Photo[];
-        
-        // Detect new photos
-        if (new_photos.length > last_photo_count && last_photo_count > 0) {
-          setShouldShowNewPhotoAlert(true);
-          setTimeout(() => setShouldShowNewPhotoAlert(false), 3000);
-          setCurrentIndex(0);
-        }
-        
-        setPhotos(new_photos);
-        setLastPhotoCount(new_photos.length);
-      }
-    } catch (error) {
-      console.error('Error fetching photos:', error);
-    }
-  }, [drive_script_url, last_photo_count]);
-
-  // Polling for new photos
-  useEffect(() => {
-    if (loading_state !== 'success' || !drive_script_url) return;
-
-    // Initial fetch with small delay to avoid cascading renders
-    const initial_timeout = setTimeout(fetchPhotos, 100);
-    const interval = setInterval(fetchPhotos, REFRESH_INTERVAL);
-    
-    return () => {
-      clearTimeout(initial_timeout);
-      clearInterval(interval);
-    };
-  }, [fetchPhotos, loading_state, drive_script_url]);
-
-  // Auto-advance slides
-  useEffect(() => {
-    if (photos.length === 0) return;
-
-    const interval = setInterval(() => {
-      setIsTransitioning(true);
-      setTimeout(() => {
-        setCurrentIndex((prev) => (prev + 1) % photos.length);
-        setIsTransitioning(false);
-      }, 500);
-    }, SLIDE_DURATION);
-
-    return () => clearInterval(interval);
-  }, [photos.length]);
 
   // Loading state
   if (loading_state === 'loading') {
@@ -202,14 +138,8 @@ export function PresentationPage() {
     );
   }
 
-  const current_photo = photos[current_index];
-  
   // Format date for display
-  const formatted_date = event.event_date.toLocaleDateString('es-AR', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  });
+  const formatted_date = formatFullDate(event.event_date);
 
   return (
     <div 
@@ -217,18 +147,20 @@ export function PresentationPage() {
       style={theme_vars as React.CSSProperties}
     >
       {/* Current photo */}
-      <div 
-        className={`absolute inset-0 transition-opacity duration-500 ${
-          is_transitioning ? 'opacity-0' : 'opacity-100'
-        }`}
-      >
-        <img
-          src={getDriveImageUrl(current_photo)}
-          alt={current_photo.name}
-          referrerPolicy="no-referrer"
-          className="w-full h-full object-contain bg-black"
-        />
-      </div>
+      {current_photo && (
+        <div 
+          className={`absolute inset-0 transition-opacity duration-500 ${
+            is_transitioning ? 'opacity-0' : 'opacity-100'
+          }`}
+        >
+          <img
+            src={getDriveImageUrl(current_photo.id)}
+            alt={current_photo.name}
+            referrerPolicy="no-referrer"
+            className="w-full h-full object-contain bg-black"
+          />
+        </div>
+      )}
 
       {/* Gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/30 pointer-events-none" />
@@ -246,7 +178,7 @@ export function PresentationPage() {
       </header>
 
       {/* New photo alert */}
-      {should_show_new_photo_alert && (
+      {has_new_photo && (
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 animate-fade-in-up">
           <div className="bg-event-primary text-white px-8 py-4 rounded-2xl shadow-2xl">
             <p className="font-event-display text-2xl">¡Nueva foto!</p>
@@ -264,7 +196,7 @@ export function PresentationPage() {
           return (
             <button
               key={photo.id}
-              onClick={() => setCurrentIndex(actual_index)}
+              onClick={() => goToPhoto(actual_index)}
               aria-label={`Ver foto ${actual_index + 1}`}
               className={`w-16 h-16 rounded-lg overflow-hidden border-2 transition-all duration-300 cursor-pointer ${
                 actual_index === current_index
@@ -273,7 +205,7 @@ export function PresentationPage() {
               }`}
             >
               <img
-                src={getDriveImageUrl(photo)}
+                src={getDriveImageUrl(photo.id)}
                 alt=""
                 referrerPolicy="no-referrer"
                 className="w-full h-full object-cover"
@@ -283,11 +215,16 @@ export function PresentationPage() {
         })}
       </div>
 
-      {/* Photo counter */}
-      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10">
+      {/* Photo counter and timestamp */}
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 text-center">
         <p className="font-event-body text-white/60 text-sm">
           {current_index + 1} / {photos.length}
         </p>
+        {current_photo && (
+          <p className="font-event-body text-white/40 text-xl mt-1">
+            📸 {formatTime(new Date(current_photo.timestamp))}
+          </p>
+        )}
       </div>
     </div>
   );

@@ -1,97 +1,37 @@
-import { useState, useRef } from 'react';
 import type { UploadSection as UploadSectionData } from '../../../domain/event/Event';
-
-type UploadStatus = 'idle' | 'uploading' | 'success' | 'error';
+import { usePhotoUpload } from '../../hooks/usePhotoUpload';
+import { useUploadWindow } from '../../hooks/useUploadWindow';
+import { formatDate, formatTime } from '../../utils/date-formatters';
 
 interface UploadSectionProps {
   data: UploadSectionData;
   script_url?: string;
+  upload_start_time?: Date;
+  upload_end_time?: Date;
+  event_date: Date;
 }
 
-export function UploadSection({ data, script_url }: UploadSectionProps) {
-  const [status, setStatus] = useState<UploadStatus>('idle');
-  const [upload_progress, setUploadProgress] = useState(0);
-  const file_input_ref = useRef<HTMLInputElement>(null);
-
+export function UploadSection({ 
+  data, 
+  script_url, 
+  upload_start_time, 
+  upload_end_time 
+}: UploadSectionProps) {
   const { message, projection_note } = data;
-  const is_upload_enabled = Boolean(script_url);
+  
+  const window_status = useUploadWindow({ 
+    script_url, 
+    upload_start_time, 
+    upload_end_time 
+  });
 
-  const handleUploadClick = () => {
-    file_input_ref.current?.click();
-  };
-
-  const uploadFile = async (file: File): Promise<void> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      
-      reader.onload = async () => {
-        try {
-          const base64 = (reader.result as string).split(',')[1];
-          
-          if (!script_url) {
-            reject(new Error('Upload not configured'));
-            return;
-          }
-
-          const response = await fetch(script_url, {
-            method: 'POST',
-            body: JSON.stringify({
-              file: base64,
-              fileName: file.name,
-              mimeType: file.type,
-            }),
-          });
-
-          const result = await response.json();
-          
-          if (result.success) {
-            resolve();
-          } else {
-            reject(new Error(result.error || 'Unknown error'));
-          }
-        } catch (error) {
-          reject(error);
-        }
-      };
-
-      reader.onerror = () => reject(reader.error);
-      reader.readAsDataURL(file);
-    });
-  };
-
-  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
-
-    setStatus('uploading');
-    setUploadProgress(0);
-
-    const total_files = files.length;
-    let uploaded_count = 0;
-
-    for (const file of Array.from(files)) {
-      try {
-        await uploadFile(file);
-        uploaded_count++;
-        setUploadProgress(Math.round((uploaded_count / total_files) * 100));
-      } catch (error) {
-        console.error('Error uploading file:', error);
-        setStatus('error');
-        setTimeout(() => setStatus('idle'), 3000);
-        return;
-      }
-    }
-
-    setStatus('success');
-    setTimeout(() => {
-      setStatus('idle');
-      setUploadProgress(0);
-    }, 3000);
-
-    if (file_input_ref.current) {
-      file_input_ref.current.value = '';
-    }
-  };
+  const { 
+    status, 
+    progress, 
+    file_input_ref, 
+    triggerFileSelect, 
+    handleFileSelect 
+  } = usePhotoUpload({ script_url });
 
   const getButtonContent = () => {
     switch (status) {
@@ -102,7 +42,7 @@ export function UploadSection({ data, script_url }: UploadSectionProps) {
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
             </svg>
-            Subiendo... {upload_progress}%
+            Subiendo... {progress}%
           </span>
         );
       case 'success':
@@ -151,8 +91,13 @@ export function UploadSection({ data, script_url }: UploadSectionProps) {
     }
   };
 
-  // Show alternative message when upload is not configured
-  if (!is_upload_enabled) {
+  // Not configured - don't render the section
+  if (window_status === 'not_configured') {
+    return null;
+  }
+
+  // Before the event day
+  if (window_status === 'before_event' && upload_start_time) {
     return (
       <div className="animate-fade-in-up-delay-3 text-center">
         <p className="font-event-body text-lg sm:text-xl text-event-text/80 max-w-md leading-relaxed mb-6">
@@ -167,13 +112,56 @@ export function UploadSection({ data, script_url }: UploadSectionProps) {
             <span className="font-event-display text-lg font-medium">Galería de fotos</span>
           </div>
           <p className="font-event-body text-event-text/60 text-sm">
-            Próximamente podrás compartir tus fotos aquí
+            Se habilitará el {formatDate(upload_start_time)}
           </p>
         </div>
       </div>
     );
   }
 
+  // Same day, waiting for the start time
+  if (window_status === 'same_day_waiting' && upload_start_time) {
+    return (
+      <div className="animate-fade-in-up-delay-3 text-center">
+        <p className="font-event-body text-lg sm:text-xl text-event-text/80 max-w-md leading-relaxed mb-6">
+          {message}
+        </p>
+        
+        <div className="bg-event-primary/5 border border-event-primary/20 rounded-2xl px-8 py-6 max-w-sm mx-auto">
+          <div className="flex items-center justify-center gap-3 text-event-primary mb-2">
+            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span className="font-event-display text-lg font-medium">¡Casi listo!</span>
+          </div>
+          <p className="font-event-body text-event-text/60 text-sm">
+            La galería abrirá a las {formatTime(upload_start_time)}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Upload window closed
+  if (window_status === 'closed') {
+    return (
+      <div className="animate-fade-in-up-delay-3 text-center">
+        <div className="bg-event-primary/5 border border-event-primary/20 rounded-2xl px-8 py-6 max-w-sm mx-auto">
+          <div className="flex items-center justify-center gap-3 text-event-primary mb-2">
+            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 13l4 4L19 7" />
+            </svg>
+            <span className="font-event-display text-lg font-medium">¡Gracias por participar!</span>
+          </div>
+          <p className="font-event-body text-event-text/60 text-sm">
+            La galería de fotos está cerrada
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Active - show upload button
   return (
     <>
       <input
@@ -199,7 +187,7 @@ export function UploadSection({ data, script_url }: UploadSectionProps) {
       )}
 
       <button
-        onClick={handleUploadClick}
+        onClick={triggerFileSelect}
         disabled={status === 'uploading'}
         className={getButtonClass()}
       >
