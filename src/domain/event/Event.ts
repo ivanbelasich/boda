@@ -22,8 +22,15 @@ export type EventSection = HeroSection | UploadSection | GallerySection;
 
 // Visual event configuration
 export interface EventTheme {
-  primary_color: string;
-  font_family?: string;
+  preset?: string;
+  // Optional overrides
+  primary?: string;
+  primary_light?: string;
+  primary_dark?: string;
+  background?: string;
+  text?: string;
+  font_display?: string;
+  font_body?: string;
 }
 
 // Main event entity
