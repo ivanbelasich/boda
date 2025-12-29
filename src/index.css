@@ -1,18 +1,20 @@
 @import "tailwindcss";
 
-/* Colores de la boda */
+/* Theme variables - defaults that can be overridden per event */
 @theme {
-  --color-boda: #c59e81;
-  --color-boda-light: #e1d4cc;
-  --color-boda-dark: #a07a5c;
-  --color-boda-cream: #ffffff;
-  --color-boda-text: #2f2f2f;
+  /* Event colors - these will be overridden by scoped styles */
+  --color-event-primary: #c59e81;
+  --color-event-light: #e1d4cc;
+  --color-event-dark: #a07a5c;
+  --color-event-bg: #ffffff;
+  --color-event-text: #2f2f2f;
 
-  --font-display: "Playfair Display", serif;
-  --font-body: "Cormorant Garamond", serif;
+  /* Fonts */
+  --font-event-display: "Playfair Display", serif;
+  --font-event-body: "Cormorant Garamond", serif;
 }
 
-/* Reset básico */
+/* Reset */
 * {
   margin: 0;
   padding: 0;
@@ -24,15 +26,15 @@ html {
 }
 
 body {
-  font-family: var(--font-body);
-  background-color: var(--color-boda-cream);
-  color: var(--color-boda-text);
+  font-family: var(--font-event-body);
+  background-color: var(--color-event-bg);
+  color: var(--color-event-text);
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Animaciones */
+/* Animations */
 @keyframes fadeInUp {
   from {
     opacity: 0;

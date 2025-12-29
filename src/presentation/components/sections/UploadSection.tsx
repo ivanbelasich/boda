@@ -14,6 +14,7 @@ export function UploadSection({ data, script_url }: UploadSectionProps) {
   const file_input_ref = useRef<HTMLInputElement>(null);
 
   const { message, projection_note } = data;
+  const is_upload_enabled = Boolean(script_url);
 
   const handleUploadClick = () => {
     file_input_ref.current?.click();
@@ -28,9 +29,7 @@ export function UploadSection({ data, script_url }: UploadSectionProps) {
           const base64 = (reader.result as string).split(',')[1];
           
           if (!script_url) {
-            console.log('Demo mode - file:', file.name);
-            await new Promise(r => setTimeout(r, 1000));
-            resolve();
+            reject(new Error('Upload not configured'));
             return;
           }
 
@@ -138,7 +137,7 @@ export function UploadSection({ data, script_url }: UploadSectionProps) {
   };
 
   const getButtonClass = () => {
-    const base_class = "animate-fade-in-up-delay-3 group relative px-8 py-4 font-body text-xl tracking-wide rounded-full shadow-lg transition-all duration-300 cursor-pointer active:scale-95";
+    const base_class = "animate-fade-in-up-delay-3 group relative px-8 py-4 font-event-body text-xl tracking-wide rounded-full shadow-lg transition-all duration-300 cursor-pointer active:scale-95";
     
     switch (status) {
       case 'success':
@@ -146,11 +145,34 @@ export function UploadSection({ data, script_url }: UploadSectionProps) {
       case 'error':
         return `${base_class} bg-red-500 text-white shadow-red-500/30`;
       case 'uploading':
-        return `${base_class} bg-boda-light text-boda-text shadow-boda-light/30 cursor-wait`;
+        return `${base_class} bg-event-light text-event-text shadow-event-light/30 cursor-wait`;
       default:
-        return `${base_class} bg-boda-light text-boda-text shadow-boda-light/30 hover:bg-boda hover:text-white hover:shadow-xl hover:shadow-boda/40 hover:scale-105`;
+        return `${base_class} bg-event-light text-event-text shadow-event-light/30 hover:bg-event-primary hover:text-white hover:shadow-xl hover:shadow-event-primary/40 hover:scale-105`;
     }
   };
+
+  // Show alternative message when upload is not configured
+  if (!is_upload_enabled) {
+    return (
+      <div className="animate-fade-in-up-delay-3 text-center">
+        <p className="font-event-body text-lg sm:text-xl text-event-text/80 max-w-md leading-relaxed mb-6">
+          {message}
+        </p>
+        
+        <div className="bg-event-primary/5 border border-event-primary/20 rounded-2xl px-8 py-6 max-w-sm mx-auto">
+          <div className="flex items-center justify-center gap-3 text-event-primary mb-2">
+            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <span className="font-event-display text-lg font-medium">Galería de fotos</span>
+          </div>
+          <p className="font-event-body text-event-text/60 text-sm">
+            Próximamente podrás compartir tus fotos aquí
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -164,13 +186,13 @@ export function UploadSection({ data, script_url }: UploadSectionProps) {
         aria-label="Seleccionar fotos para subir"
       />
 
-      <p className="animate-fade-in-up-delay-3 font-body text-lg sm:text-xl text-boda-text/80 text-center max-w-md leading-relaxed mb-4">
+      <p className="animate-fade-in-up-delay-3 font-event-body text-lg sm:text-xl text-event-text/80 text-center max-w-md leading-relaxed mb-4">
         {message}
       </p>
 
       {projection_note && (
-        <div className="animate-fade-in-up-delay-3 bg-boda/10 border border-boda/30 rounded-2xl px-6 py-4 max-w-sm text-center mb-10">
-          <p className="font-body text-boda-text/90 text-base leading-relaxed">
+        <div className="animate-fade-in-up-delay-3 bg-event-primary/10 border border-event-primary/30 rounded-2xl px-6 py-4 max-w-sm text-center mb-10">
+          <p className="font-event-body text-event-text/90 text-base leading-relaxed">
             {projection_note}
           </p>
         </div>
@@ -183,13 +205,6 @@ export function UploadSection({ data, script_url }: UploadSectionProps) {
       >
         {getButtonContent()}
       </button>
-
-      {!script_url && (
-        <p className="mt-4 text-boda-dark/40 text-sm font-body">
-          Demo mode - Configure drive_script_url to connect with Drive
-        </p>
-      )}
     </>
   );
 }
-

@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import type { Event } from '../../domain/event/Event';
 import { createSupabaseEventRepository } from '../../infrastructure/supabase/SupabaseEventRepository';
+import { useEventTheme } from '../hooks/useEventTheme';
 
 // Intervals (configurable via env vars)
 const REFRESH_INTERVAL = Number(import.meta.env.VITE_PHOTO_REFRESH_INTERVAL) || 15000; // 15 seconds default
@@ -35,6 +36,18 @@ export function PresentationPage() {
   const [is_transitioning, setIsTransitioning] = useState(false);
   const [last_photo_count, setLastPhotoCount] = useState(0);
   const [should_show_new_photo_alert, setShouldShowNewPhotoAlert] = useState(false);
+
+  const theme_vars = useEventTheme(event?.theme);
+
+  // Update page title dynamically
+  useEffect(() => {
+    if (event) {
+      document.title = `${event.title} - Presentación | La Fecha Eventos`;
+    }
+    return () => {
+      document.title = 'La Fecha Eventos';
+    };
+  }, [event]);
 
   // Load event from Supabase
   useEffect(() => {
@@ -130,10 +143,10 @@ export function PresentationPage() {
   // Loading state
   if (loading_state === 'loading') {
     return (
-      <div className="min-h-screen bg-boda-text flex items-center justify-center">
+      <div className="min-h-screen bg-event-text flex items-center justify-center">
         <div className="text-center flex flex-col items-center">
-          <div className="w-24 h-24 mb-8 border-4 border-boda border-t-transparent rounded-full animate-spin" />
-          <h2 className="font-display text-3xl text-boda mb-4">
+          <div className="w-24 h-24 mb-8 border-4 border-event-primary border-t-transparent rounded-full animate-spin" />
+          <h2 className="font-event-display text-3xl text-event-primary mb-4">
             Cargando...
           </h2>
         </div>
@@ -144,10 +157,10 @@ export function PresentationPage() {
   // Not found state
   if (loading_state === 'not_found') {
     return (
-      <div className="min-h-screen bg-boda-text flex items-center justify-center">
+      <div className="min-h-screen bg-event-text flex items-center justify-center">
         <div className="text-center px-6">
-          <h1 className="font-display text-4xl text-white mb-4">Evento no encontrado</h1>
-          <p className="font-body text-boda-light/70">
+          <h1 className="font-event-display text-4xl text-white mb-4">Evento no encontrado</h1>
+          <p className="font-event-body text-event-light/70">
             El evento que buscas no existe o ya no está disponible.
           </p>
         </div>
@@ -158,10 +171,10 @@ export function PresentationPage() {
   // Error state
   if (loading_state === 'error' || !event) {
     return (
-      <div className="min-h-screen bg-boda-text flex items-center justify-center">
+      <div className="min-h-screen bg-event-text flex items-center justify-center">
         <div className="text-center px-6">
-          <h1 className="font-display text-4xl text-white mb-4">Error</h1>
-          <p className="font-body text-boda-light/70">
+          <h1 className="font-event-display text-4xl text-white mb-4">Error</h1>
+          <p className="font-event-body text-event-light/70">
             Ocurrió un error al cargar el evento.
           </p>
         </div>
@@ -172,13 +185,16 @@ export function PresentationPage() {
   // Waiting for photos
   if (photos.length === 0) {
     return (
-      <div className="min-h-screen bg-boda-text flex items-center justify-center">
+      <div 
+        className="min-h-screen bg-event-text flex items-center justify-center"
+        style={theme_vars as React.CSSProperties}
+      >
         <div className="text-center flex flex-col items-center">
-          <div className="w-24 h-24 mb-8 border-4 border-boda border-t-transparent rounded-full animate-spin" />
-          <h2 className="font-display text-3xl text-boda mb-4">
+          <div className="w-24 h-24 mb-8 border-4 border-event-primary border-t-transparent rounded-full animate-spin" />
+          <h2 className="font-event-display text-3xl text-event-primary mb-4">
             Esperando fotos...
           </h2>
-          <p className="font-body text-boda-light/70">
+          <p className="font-event-body text-event-light/70">
             Las fotos aparecerán aquí cuando los invitados las suban
           </p>
         </div>
@@ -196,7 +212,10 @@ export function PresentationPage() {
   });
 
   return (
-    <div className="min-h-screen bg-boda-text relative overflow-hidden">
+    <div 
+      className="min-h-screen bg-event-text relative overflow-hidden"
+      style={theme_vars as React.CSSProperties}
+    >
       {/* Current photo */}
       <div 
         className={`absolute inset-0 transition-opacity duration-500 ${
@@ -217,10 +236,10 @@ export function PresentationPage() {
       {/* Header - Dynamic from event */}
       <header className="absolute top-4 left-4 pt-8 pb-8 pl-12 pr-8 sm:pt-10 sm:pb-10 sm:pl-16 sm:pr-10 z-10">
         <div>
-          <h1 className="font-display text-2xl sm:text-3xl text-white/90">
+          <h1 className="font-event-display text-2xl sm:text-3xl text-white/90">
             {event.title}
           </h1>
-          <p className="font-body text-boda-light text-sm">
+          <p className="font-event-body text-event-light text-sm">
             {formatted_date}
           </p>
         </div>
@@ -229,8 +248,8 @@ export function PresentationPage() {
       {/* New photo alert */}
       {should_show_new_photo_alert && (
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 animate-fade-in-up">
-          <div className="bg-boda text-white px-8 py-4 rounded-2xl shadow-2xl">
-            <p className="font-display text-2xl">¡Nueva foto!</p>
+          <div className="bg-event-primary text-white px-8 py-4 rounded-2xl shadow-2xl">
+            <p className="font-event-display text-2xl">¡Nueva foto!</p>
           </div>
         </div>
       )}
@@ -249,7 +268,7 @@ export function PresentationPage() {
               aria-label={`Ver foto ${actual_index + 1}`}
               className={`w-16 h-16 rounded-lg overflow-hidden border-2 transition-all duration-300 cursor-pointer ${
                 actual_index === current_index
-                  ? 'border-boda scale-110'
+                  ? 'border-event-primary scale-110'
                   : 'border-white/20 opacity-60 hover:opacity-100'
               }`}
             >
@@ -266,11 +285,10 @@ export function PresentationPage() {
 
       {/* Photo counter */}
       <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10">
-        <p className="font-body text-white/60 text-sm">
+        <p className="font-event-body text-white/60 text-sm">
           {current_index + 1} / {photos.length}
         </p>
       </div>
     </div>
   );
 }
-
