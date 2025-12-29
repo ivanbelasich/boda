@@ -14,6 +14,8 @@ interface EventRow {
   sections: EventSection[];
   drive_script_url: string | null;
   drive_folder_id: string | null;
+  upload_start_time: string | null;
+  upload_end_time: string | null;
   is_active: boolean;
 }
 
@@ -30,6 +32,8 @@ function mapRowToEvent(row: EventRow): Event {
     sections: row.sections,
     drive_script_url: row.drive_script_url ?? undefined,
     drive_folder_id: row.drive_folder_id ?? undefined,
+    upload_start_time: row.upload_start_time ? new Date(row.upload_start_time) : undefined,
+    upload_end_time: row.upload_end_time ? new Date(row.upload_end_time) : undefined,
     is_active: row.is_active,
   };
 }
@@ -57,4 +61,3 @@ export function createSupabaseEventRepository(): EventRepository {
     },
   };
 }
-

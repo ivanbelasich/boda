@@ -46,6 +46,8 @@ export interface Event {
   sections: EventSection[];
   drive_script_url?: string;
   drive_folder_id?: string;
+  upload_start_time?: Date;
+  upload_end_time?: Date;
   is_active: boolean;
 }
 
