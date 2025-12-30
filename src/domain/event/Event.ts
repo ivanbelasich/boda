@@ -18,7 +18,70 @@ export interface GallerySection {
   is_enabled: boolean;
 }
 
-export type EventSection = HeroSection | UploadSection | GallerySection;
+export interface CountdownSection {
+  type: 'countdown';
+  title?: string;
+  show_days?: boolean;
+  show_hours?: boolean;
+  show_minutes?: boolean;
+  show_seconds?: boolean;
+}
+
+export interface LocationSection {
+  type: 'location';
+  title: string;
+  venue_name: string;
+  address: string;
+  city?: string;
+  datetime?: string;
+  google_maps_url?: string;
+  google_maps_embed_url?: string;
+  additional_info?: string;
+}
+
+export interface GiftSection {
+  type: 'gift';
+  title?: string;
+  message?: string;
+  bank_info?: {
+    holder_name: string;
+    cbu: string;
+    alias: string;
+    bank_name: string;
+    dni?: string;
+  };
+  external_links?: Array<{
+    label: string;
+    url: string;
+  }>;
+  mercadopago_link?: string;
+}
+
+export interface DressCodeSection {
+  type: 'dresscode';
+  title?: string;
+  code: string;
+  description?: string;
+  icon?: string;
+  pinterest_url?: string;
+}
+
+export interface CalendarSection {
+  type: 'calendar';
+  title?: string;
+  show_google?: boolean;
+  show_apple?: boolean;
+}
+
+export type EventSection = 
+  | HeroSection 
+  | UploadSection 
+  | GallerySection
+  | CountdownSection
+  | LocationSection
+  | GiftSection
+  | DressCodeSection
+  | CalendarSection;
 
 // Visual event configuration
 export interface EventTheme {
