@@ -69,16 +69,7 @@ export function EventPage() {
     });
   }, [event]);
 
-  // Check if event is close (less than 7 days away)
-  const is_event_close = useMemo(() => {
-    if (!event) return false;
-    const days_until_event = Math.floor(
-      (event.event_date.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
-    );
-    return days_until_event >= 0 && days_until_event < 7;
-  }, [event]);
-
-  // Reorder sections to prioritize upload when event is close or gallery is active
+  // Reorder sections to prioritize upload ONLY when gallery is active or same day waiting
   const reordered_sections = useMemo(() => {
     if (!event) return [];
     
@@ -87,32 +78,24 @@ export function EventPage() {
     // Find upload section index
     const upload_index = sections.findIndex(s => s.type === 'upload');
     
-    // If upload section exists and should be prioritized
+    // Only reorder if upload is ACTIVE or SAME_DAY_WAITING (not before_event)
     if (
       upload_index !== -1 && 
-      (upload_status === 'active' || 
-       upload_status === 'same_day_waiting' || 
-       is_event_close)
+      (upload_status === 'active' || upload_status === 'same_day_waiting')
     ) {
-      // Find hero and countdown indices
+      // Find hero index (countdown se renderiza automáticamente después de hero)
       const hero_index = sections.findIndex(s => s.type === 'hero');
-      const countdown_index = sections.findIndex(s => s.type === 'countdown');
       
-      // Determine target position (after hero and countdown, whichever comes last)
-      const last_priority_index = Math.max(
-        hero_index !== -1 ? hero_index : -1,
-        countdown_index !== -1 ? countdown_index : -1
-      );
-      
-      // If we have a priority section, move upload right after it
-      if (last_priority_index !== -1 && upload_index > last_priority_index) {
+      // Determine target position (after hero, countdown se renderiza automáticamente)
+      if (hero_index !== -1 && upload_index > hero_index) {
         const upload_section = sections.splice(upload_index, 1)[0];
-        sections.splice(last_priority_index + 1, 0, upload_section);
+        // Insertar después de hero (countdown se renderiza después, así que upload va después de countdown)
+        sections.splice(hero_index + 1, 0, upload_section);
       }
     }
     
     return sections;
-  }, [event, upload_status, is_event_close]);
+  }, [event, upload_status]);
 
   if (loading_state === 'loading') {
     return (
@@ -159,15 +142,15 @@ export function EventPage() {
   const renderSection = (section: Event['sections'][number], index: number) => {
     switch (section.type) {
       case 'hero':
-        return <HeroSection key={`hero-${index}`} data={section} />;
-      
-      case 'countdown':
         return (
-          <CountdownSection 
-            key={`countdown-${index}`} 
-            data={section} 
-            event_date={event.event_date} 
-          />
+          <>
+            <HeroSection key={`hero-${index}`} data={section} event_date={event.event_date} />
+            <CountdownSection 
+              key="countdown" 
+              event_date={event.event_date} 
+              upload_end_time={event.upload_end_time}
+            />
+          </>
         );
       
       case 'location':

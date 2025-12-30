@@ -1,10 +1,8 @@
 import { useState, useEffect } from 'react';
-import type { CountdownSection as CountdownSectionData } from '../../../domain/event/Event';
-import { formatFullDate } from '../../utils/date-formatters';
 
 interface CountdownSectionProps {
-  data: CountdownSectionData;
   event_date: Date;
+  upload_end_time?: Date;
 }
 
 interface TimeLeft {
@@ -19,8 +17,9 @@ type CountdownPhase =
   | 'far_away'      // > 30 días
   | 'approaching'   // 7-30 días
   | 'very_close'    // < 7 días
-  | 'today'         // Mismo día
-  | 'past';         // Ya pasó
+  | 'today'         // Same day, before event_date
+  | 'ongoing'       // event_date passed but upload_end_time hasn't
+  | 'past';         // upload_end_time passed (or event_date if no upload_end_time)
 
 function calculateTimeLeft(target_date: Date): TimeLeft {
   const now = new Date();
@@ -38,54 +37,80 @@ function calculateTimeLeft(target_date: Date): TimeLeft {
   return { days, hours, minutes, seconds, total_ms: difference };
 }
 
-function getCountdownPhase(time_left: TimeLeft, event_date: Date): CountdownPhase {
+// Default: 12 hours after event_date
+const DEFAULT_EVENT_DURATION_MS = 12 * 60 * 60 * 1000;
+
+function getDefaultUploadEndTime(event_date: Date): Date {
+  return new Date(event_date.getTime() + DEFAULT_EVENT_DURATION_MS);
+}
+
+function getCountdownPhase(
+  time_left: TimeLeft, 
+  event_date: Date, 
+  upload_end_time?: Date
+): CountdownPhase {
   const now = new Date();
   const is_same_day = now.toDateString() === event_date.toDateString();
+  const event_started = now >= event_date;
+  
+  // If event hasn't started yet, use normal countdown logic
+  if (!event_started) {
+    if (is_same_day) {
+      return 'today';
+    }
 
-  if (time_left.total_ms <= 0) {
+    // If there are hours left but no days, return very_close
+    if (time_left.days === 0 && time_left.hours > 0) {
+      return 'very_close';
+    }
+
+    if (time_left.days < 7) {
+      return 'very_close';
+    }
+
+    if (time_left.days < 30) {
+      return 'approaching';
+    }
+
+    return 'far_away';
+  }
+  
+  // Event has started - check if it has finished
+  // Use upload_end_time or default (12 hours after event_date)
+  const effective_end_time = upload_end_time ?? getDefaultUploadEndTime(event_date);
+  const event_finished = now > effective_end_time;
+
+  if (event_finished) {
     return 'past';
   }
 
-  if (is_same_day) {
-    return 'today';
-  }
-
-  if (time_left.days < 7) {
-    return 'very_close';
-  }
-
-  if (time_left.days < 30) {
-    return 'approaching';
-  }
-
-  return 'far_away';
+  // event_date passed but effective_end_time hasn't -> event is ongoing
+  return 'ongoing';
 }
 
-function getPhaseMessage(phase: CountdownPhase): string {
+function getPhaseMessage(phase: CountdownPhase, time_left?: TimeLeft): string {
   switch (phase) {
     case 'far_away':
       return '¡Nos vemos pronto!';
     case 'approaching':
       return '¡Ya casi llega el gran día!';
     case 'very_close':
+      // If there are hours left but no days, change message
+      if (time_left && time_left.days === 0 && time_left.hours > 0) {
+        return '¡Quedan horas!';
+      }
       return '¡Estamos a días!';
     case 'today':
+      return '¡Hoy es el gran día!';
+    case 'ongoing':
       return '¡Hoy es el gran día!';
     case 'past':
       return '¡Gracias por acompañarnos!';
   }
 }
 
-export function CountdownSection({ data, event_date }: CountdownSectionProps) {
+export function CountdownSection({ event_date, upload_end_time }: CountdownSectionProps) {
   const [time_left, setTimeLeft] = useState<TimeLeft>(() => calculateTimeLeft(event_date));
-
-  const {
-    title = '¡Faltan...',
-    show_days = true,
-    show_hours = true,
-    show_minutes = true,
-    show_seconds = true,
-  } = data;
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -95,16 +120,13 @@ export function CountdownSection({ data, event_date }: CountdownSectionProps) {
     return () => clearInterval(timer);
   }, [event_date]);
 
-  const phase = getCountdownPhase(time_left, event_date);
-  const phase_message = getPhaseMessage(phase);
+  const phase = getCountdownPhase(time_left, event_date, upload_end_time);
+  const phase_message = getPhaseMessage(phase, time_left);
 
-  // Event has passed
+  // Event has passed completely (upload_end_time passed)
   if (phase === 'past') {
     return (
       <div className="animate-fade-in-up text-center py-8">
-        <p className="font-event-body text-event-text/60 text-sm mb-2 uppercase tracking-wider">
-          {formatFullDate(event_date)}
-        </p>
         <h2 className="font-event-display text-2xl sm:text-3xl text-event-primary mb-4">
           {phase_message}
         </h2>
@@ -117,12 +139,24 @@ export function CountdownSection({ data, event_date }: CountdownSectionProps) {
     );
   }
 
-  // Build time units based on phase
+  // Event is ongoing (event_date passed but upload_end_time hasn't)
+  if (phase === 'ongoing') {
+    return (
+      <div className="animate-fade-in-up text-center py-8">
+        <h2 className="font-event-display text-2xl sm:text-3xl text-event-primary mb-4">
+          {phase_message}
+        </h2>
+      </div>
+    );
+  }
+
+  // Build time units: show hours, minutes, seconds
+  // Days only if > 0 (hide when less than 24 hours)
   const time_units = [
-    { value: time_left.days, label: 'días', show: show_days && phase !== 'today' },
-    { value: time_left.hours, label: 'hs', show: show_hours },
-    { value: time_left.minutes, label: 'min', show: show_minutes },
-    { value: time_left.seconds, label: 'seg', show: show_seconds },
+    { value: time_left.days, label: 'días', show: time_left.days > 0 },
+    { value: time_left.hours, label: 'hs', show: true },
+    { value: time_left.minutes, label: 'min', show: true },
+    { value: time_left.seconds, label: 'seg', show: true },
   ].filter(unit => unit.show);
 
   return (
@@ -132,10 +166,10 @@ export function CountdownSection({ data, event_date }: CountdownSectionProps) {
         {phase_message}
       </p>
 
-      {/* Title */}
-      {title && phase !== 'today' && (
+      {/* Title - dynamic based on phase */}
+      {phase !== 'today' && (
         <h2 className="font-event-display text-xl sm:text-2xl text-event-text/70 mb-6">
-          {title}
+          ¡Faltan...
         </h2>
       )}
 
