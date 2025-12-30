@@ -1,9 +1,16 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import type { Event } from '../../domain/event/Event';
 import { createSupabaseEventRepository } from '../../infrastructure/supabase/SupabaseEventRepository';
-import { HeroSection, UploadSection } from '../components/sections';
+import { HeroSection } from '../components/sections/HeroSection';
+import { UploadSection } from '../components/sections/UploadSection';
+import { CountdownSection } from '../components/sections/CountdownSection';
+import { LocationSection } from '../components/sections/LocationSection';
+import { GiftSection } from '../components/sections/GiftSection';
+import { DressCodeSection } from '../components/sections/DressCodeSection';
+import { CalendarSection } from '../components/sections/CalendarSection';
 import { useEventTheme } from '../hooks/useEventTheme';
+import { getUploadWindowStatus } from '../hooks/useUploadWindow';
 
 type LoadingState = 'loading' | 'success' | 'not_found' | 'error';
 
@@ -52,6 +59,61 @@ export function EventPage() {
     loadEvent();
   }, [slug]);
 
+  // Determine upload window status (must be before early returns)
+  const upload_status = useMemo(() => {
+    if (!event) return 'not_configured';
+    return getUploadWindowStatus({
+      script_url: event.drive_script_url,
+      upload_start_time: event.upload_start_time,
+      upload_end_time: event.upload_end_time,
+    });
+  }, [event]);
+
+  // Check if event is close (less than 7 days away)
+  const is_event_close = useMemo(() => {
+    if (!event) return false;
+    const days_until_event = Math.floor(
+      (event.event_date.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
+    );
+    return days_until_event >= 0 && days_until_event < 7;
+  }, [event]);
+
+  // Reorder sections to prioritize upload when event is close or gallery is active
+  const reordered_sections = useMemo(() => {
+    if (!event) return [];
+    
+    const sections = [...event.sections];
+    
+    // Find upload section index
+    const upload_index = sections.findIndex(s => s.type === 'upload');
+    
+    // If upload section exists and should be prioritized
+    if (
+      upload_index !== -1 && 
+      (upload_status === 'active' || 
+       upload_status === 'same_day_waiting' || 
+       is_event_close)
+    ) {
+      // Find hero and countdown indices
+      const hero_index = sections.findIndex(s => s.type === 'hero');
+      const countdown_index = sections.findIndex(s => s.type === 'countdown');
+      
+      // Determine target position (after hero and countdown, whichever comes last)
+      const last_priority_index = Math.max(
+        hero_index !== -1 ? hero_index : -1,
+        countdown_index !== -1 ? countdown_index : -1
+      );
+      
+      // If we have a priority section, move upload right after it
+      if (last_priority_index !== -1 && upload_index > last_priority_index) {
+        const upload_section = sections.splice(upload_index, 1)[0];
+        sections.splice(last_priority_index + 1, 0, upload_section);
+      }
+    }
+    
+    return sections;
+  }, [event, upload_status, is_event_close]);
+
   if (loading_state === 'loading') {
     return (
       <main className="min-h-screen bg-event-bg flex items-center justify-center">
@@ -89,10 +151,45 @@ export function EventPage() {
     );
   }
 
+  // Get first location for calendar (if any)
+  const first_location = event.sections.find(s => s.type === 'location') as 
+    | Extract<Event['sections'][number], { type: 'location' }> 
+    | undefined;
+
   const renderSection = (section: Event['sections'][number], index: number) => {
     switch (section.type) {
       case 'hero':
         return <HeroSection key={`hero-${index}`} data={section} />;
+      
+      case 'countdown':
+        return (
+          <CountdownSection 
+            key={`countdown-${index}`} 
+            data={section} 
+            event_date={event.event_date} 
+          />
+        );
+      
+      case 'location':
+        return <LocationSection key={`location-${index}`} data={section} />;
+      
+      case 'gift':
+        return <GiftSection key={`gift-${index}`} data={section} />;
+      
+      case 'dresscode':
+        return <DressCodeSection key={`dresscode-${index}`} data={section} />;
+      
+      case 'calendar':
+        return (
+          <CalendarSection 
+            key={`calendar-${index}`} 
+            data={section}
+            event_title={event.title}
+            event_date={event.event_date}
+            event_location={first_location?.venue_name}
+          />
+        );
+      
       case 'upload':
         return (
           <UploadSection
@@ -102,11 +199,14 @@ export function EventPage() {
             upload_start_time={event.upload_start_time}
             upload_end_time={event.upload_end_time}
             event_date={event.event_date}
+            event_slug={slug}
           />
         );
+      
       case 'gallery':
         // TODO: Implement GallerySection
         return null;
+      
       default:
         return null;
     }
@@ -126,7 +226,7 @@ export function EventPage() {
 
       {/* Main content */}
       <div className="relative z-10 min-h-screen flex flex-col items-center justify-center px-6 py-12">
-        {event.sections.map(renderSection)}
+        {reordered_sections.map(renderSection)}
 
         {/* Bottom decoration */}
         <div className="animate-fade-in-up-delay-3 mt-12 animate-float">
