@@ -3,8 +3,6 @@ export interface HeroSection {
   type: 'hero';
   pre_title?: string;
   names: string[];
-  date: string;
-  year: string;
 }
 
 export interface UploadSection {
@@ -16,15 +14,6 @@ export interface UploadSection {
 export interface GallerySection {
   type: 'gallery';
   is_enabled: boolean;
-}
-
-export interface CountdownSection {
-  type: 'countdown';
-  title?: string;
-  show_days?: boolean;
-  show_hours?: boolean;
-  show_minutes?: boolean;
-  show_seconds?: boolean;
 }
 
 export interface LocationSection {
@@ -77,7 +66,6 @@ export type EventSection =
   | HeroSection 
   | UploadSection 
   | GallerySection
-  | CountdownSection
   | LocationSection
   | GiftSection
   | DressCodeSection

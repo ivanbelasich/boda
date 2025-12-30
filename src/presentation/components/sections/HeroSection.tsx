@@ -1,11 +1,16 @@
 import type { HeroSection as HeroSectionData } from '../../../domain/event/Event';
+import { formatHeroDate, getYear } from '../../utils/date-formatters';
 
 interface HeroSectionProps {
   data: HeroSectionData;
+  event_date: Date;
 }
 
-export function HeroSection({ data }: HeroSectionProps) {
-  const { pre_title, names, date, year } = data;
+export function HeroSection({ data, event_date }: HeroSectionProps) {
+  const { pre_title, names } = data;
+  
+  const formatted_date = formatHeroDate(event_date);
+  const year = getYear(event_date);
 
   return (
     <>
@@ -47,7 +52,7 @@ export function HeroSection({ data }: HeroSectionProps) {
       {/* Date */}
       <div className="animate-fade-in-up-delay-2 text-center mb-4">
         <p className="font-event-display text-2xl sm:text-3xl text-event-text mb-3">
-          {date}
+          {formatted_date}
         </p>
         <p className="font-event-display text-4xl sm:text-5xl text-event-primary font-semibold">
           {year}

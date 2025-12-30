@@ -26,3 +26,27 @@ export function formatFullDate(date: Date): string {
   });
 }
 
+/**
+ * Formats date for hero display with capitalized weekday and month
+ * Example: "Sábado 22 de Noviembre"
+ */
+export function formatHeroDate(date: Date): string {
+  const formatted = date.toLocaleDateString('es-AR', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+  });
+
+  // Capitalize first letter and month
+  return formatted
+    .replace(/^\w/, (char) => char.toUpperCase())
+    .replace(/ de (\w)/, (_, char) => ` de ${char.toUpperCase()}`);
+}
+
+/**
+ * Extracts the year from a date as string
+ */
+export function getYear(date: Date): string {
+  return date.getFullYear().toString();
+}
+
