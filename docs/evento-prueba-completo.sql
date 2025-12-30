@@ -4,6 +4,15 @@
 -- Ejecuta este SQL en Supabase para crear un
 -- evento de prueba completo con todas las 
 -- secciones implementadas.
+--
+-- NOTAS IMPORTANTES:
+-- - HeroSection: date y year se derivan de event_date
+-- - CountdownSection: se renderiza automáticamente, 
+--   no es necesario incluirla en sections
+-- - upload_start_time/upload_end_time: determinan la
+--   ventana de tiempo para subir fotos. Se recomienda
+--   configurar upload_start_time ~1-2 horas después del
+--   event_date y upload_end_time ~12 horas después.
 -- ===========================================
 
 INSERT INTO events (
@@ -25,24 +34,14 @@ VALUES (
   'Nos casamos',
   '2025-11-22T18:00:00-03:00',
   NULL, -- Configurar si se quiere habilitar upload
-  '2025-11-22T20:00:00-03:00',
-  '2025-11-23T04:00:00-03:00',
+  '2025-11-22T19:00:00-03:00',  -- 1 hora después de event_date
+  '2025-11-23T06:00:00-03:00',  -- 12 horas después de event_date
   '{"preset": "elegant-gold"}'::jsonb,
   '[
     {
       "type": "hero",
       "pre_title": "Nos casamos",
-      "names": ["Nico", "Sabri"],
-      "date": "Sábado 22 de Noviembre",
-      "year": "2025"
-    },
-    {
-      "type": "countdown",
-      "title": "¡Faltan...",
-      "show_days": true,
-      "show_hours": true,
-      "show_minutes": true,
-      "show_seconds": true
+      "names": ["Nico", "Sabri"]
     },
     {
       "type": "location",

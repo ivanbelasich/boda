@@ -5,17 +5,33 @@ Plan de desarrollo de secciones para las landing pages de eventos.
 ## Secciones Actuales (Implementadas)
 
 ### HeroSection
-Sección principal con nombres, fecha y mensaje de bienvenida.
+Sección principal con nombres y mensaje de bienvenida.
 
 ```typescript
 interface HeroSection {
   type: 'hero';
   pre_title?: string;    // "La boda de", "Te invitamos a"
   names: string[];       // ["Nombre 1", "Nombre 2"]
-  date: string;          // "29 de Noviembre"
-  year: string;          // "2025"
 }
 ```
+
+> **Nota:** La fecha y año se derivan automáticamente de `event_date`. Ya no es necesario especificar `date` ni `year` en el JSON.
+
+### CountdownSection (Automática)
+Cuenta regresiva hasta la fecha del evento.
+
+> **Nota:** Esta sección se renderiza automáticamente para todos los eventos. No es necesario incluirla en el array `sections` del JSON. Siempre muestra días (excepto cuando quedan menos de 24h), horas, minutos y segundos.
+
+**Comportamiento:**
+- Calcula diferencia con `event_date`
+- Actualización cada segundo
+- **Fases:**
+  - `far_away`: "¡Faltan..." (más de 7 días)
+  - `approaching`: "¡Estamos a días!" (1-7 días)
+  - `very_close`: "¡Quedan horas!" (menos de 24h, no muestra días)
+  - `today`: "¡Hoy es el gran día!" (mismo día, antes de la hora del evento)
+  - `ongoing`: "¡Hoy es el gran día!" (evento en curso, ventana de upload activa)
+  - `past`: "¡Gracias por acompañarnos!" (después de `upload_end_time`)
 
 ### UploadSection
 Sección para subir fotos al álbum en vivo.
@@ -28,30 +44,14 @@ interface UploadSection {
 }
 ```
 
+**Ventana de upload:**
+- Controlada por `upload_start_time` y `upload_end_time` del evento
+- Valor recomendado: `upload_start_time` = 1h después de `event_date`, `upload_end_time` = 12h después
+- La galería se prioriza visualmente solo cuando está activa o próxima a abrir
+
 ---
 
 ## Fase 1: Core (MVP Completo)
-
-### CountdownSection
-Cuenta regresiva hasta la fecha del evento.
-
-```typescript
-interface CountdownSection {
-  type: 'countdown';
-  title?: string;           // "¡Faltan..."
-  show_days: boolean;
-  show_hours: boolean;
-  show_minutes: boolean;
-  show_seconds: boolean;
-}
-```
-
-**Implementación:**
-- Componente que calcula diferencia con `event_date`
-- Actualización cada segundo
-- Muestra "¡Hoy es el gran día!" cuando llega la fecha
-
----
 
 ### LocationSection
 Información de ubicación (ceremonia, fiesta, o ambas).
@@ -257,12 +257,12 @@ interface BackgroundMusicSection {
 ## Orden de implementación sugerido
 
 ```
-Fase 1 (Core):
-1. CountdownSection      - 30 min
-2. LocationSection       - 45 min
-3. GiftSection           - 30 min
-4. DressCodeSection      - 15 min
-5. CalendarSection       - 45 min
+Fase 1 (Core): ✅ COMPLETADO
+1. CountdownSection      - ✅ (automático, siempre presente)
+2. LocationSection       - ✅
+3. GiftSection           - ✅
+4. DressCodeSection      - ✅
+5. CalendarSection       - ✅
 
 Fase 2 (Engagement):
 6. RSVPSection           - 20 min
@@ -290,9 +290,11 @@ Fase 3 (Premium):
 
 ```json
 {
+  "event_date": "2025-11-29T18:00:00-03:00",
+  "upload_start_time": "2025-11-29T19:00:00-03:00",
+  "upload_end_time": "2025-11-30T06:00:00-03:00",
   "sections": [
-    {"type": "hero", "pre_title": "La boda de", "names": ["Tefo", "Geli"], "date": "29 de Noviembre", "year": "2025"},
-    {"type": "countdown"},
+    {"type": "hero", "pre_title": "La boda de", "names": ["Tefo", "Geli"]},
     {"type": "location", "title": "Ceremonia", "venue_name": "Iglesia San José", "address": "...", "google_maps_url": "..."},
     {"type": "location", "title": "Fiesta", "venue_name": "Salón Las Rosas", "address": "...", "google_maps_url": "..."},
     {"type": "gift", "bank_info": {"holder_name": "...", "cbu": "...", "alias": "..."}},
@@ -303,4 +305,9 @@ Fase 3 (Premium):
   ]
 }
 ```
+
+> **Notas:**
+> - `date` y `year` ya no van en HeroSection - se derivan de `event_date`
+> - `countdown` no va en sections - se renderiza automáticamente
+> - `upload_start_time` / `upload_end_time` determinan la ventana de la galería
 

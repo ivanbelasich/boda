@@ -30,6 +30,9 @@ CREATE TABLE IF NOT EXISTS events (
   drive_folder_id VARCHAR(100),       -- ID de la carpeta (opcional, para referencia)
   
   -- Ventana de tiempo para upload de fotos
+  -- RECOMENDADO: Configurar upload_start_time ~1h después de event_date
+  --              y upload_end_time ~12h después de event_date
+  -- Si no se configura, la app usa valores por defecto (12h después de event_date)
   upload_start_time TIMESTAMP WITH TIME ZONE,
   upload_end_time TIMESTAMP WITH TIME ZONE,
   
@@ -80,6 +83,8 @@ CREATE POLICY "Eventos activos son públicos"
 -- ===========================================
 
 -- Evento de ejemplo: Boda
+-- Nota: HeroSection ya no usa "date" y "year" - se derivan automáticamente de event_date
+-- Nota: CountdownSection se renderiza automáticamente, no es necesario incluirla en sections
 INSERT INTO events (slug, type, title, subtitle, event_date, drive_script_url, theme, sections, upload_start_time, upload_end_time)
 VALUES (
   'ejemplo-boda',
@@ -93,9 +98,7 @@ VALUES (
     {
       "type": "hero",
       "pre_title": "Nos casamos",
-      "names": ["Juan", "María"],
-      "date": "Domingo 15 de Junio",
-      "year": "2025"
+      "names": ["Juan", "María"]
     },
     {
       "type": "upload",
@@ -103,13 +106,13 @@ VALUES (
       "projection_note": "Las fotos se mostrarán en las pantallas del salón"
     }
   ]'::jsonb,
-  '2025-06-15T20:00:00-03:00',
-  '2025-06-16T04:00:00-03:00'
+  '2025-06-15T20:00:00-03:00',  -- 2 horas después de event_date
+  '2025-06-16T06:00:00-03:00'   -- 12 horas después de event_date
 )
 ON CONFLICT (slug) DO NOTHING;
 
 -- Evento de ejemplo: Quinceañera
-INSERT INTO events (slug, type, title, subtitle, event_date, theme, sections)
+INSERT INTO events (slug, type, title, subtitle, event_date, theme, sections, upload_start_time, upload_end_time)
 VALUES (
   'ejemplo-quince',
   'quinceanera',
@@ -121,16 +124,16 @@ VALUES (
     {
       "type": "hero",
       "pre_title": "Los 15 de",
-      "names": ["Sofía"],
-      "date": "Miércoles 20 de Agosto",
-      "year": "2025"
+      "names": ["Sofía"]
     },
     {
       "type": "upload",
       "message": "¡Sacate fotos y compartilas!",
       "projection_note": null
     }
-  ]'::jsonb
+  ]'::jsonb,
+  '2025-08-20T21:00:00-03:00',  -- 1 hora después de event_date
+  '2025-08-21T08:00:00-03:00'   -- 12 horas después de event_date
 )
 ON CONFLICT (slug) DO NOTHING;
 
