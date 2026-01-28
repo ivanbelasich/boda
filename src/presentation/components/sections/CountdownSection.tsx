@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { formatFullDate } from '../../utils/date-formatters';
+import { Section } from '../ui/Section';
 
 interface CountdownSectionProps {
   event_date: Date;
@@ -126,27 +128,34 @@ export function CountdownSection({ event_date, upload_end_time }: CountdownSecti
   // Event has passed completely (upload_end_time passed)
   if (phase === 'past') {
     return (
-      <div className="animate-fade-in-up text-center py-8">
-        <h2 className="font-event-display text-2xl sm:text-3xl text-event-primary mb-4">
-          {phase_message}
-        </h2>
-        <div className="flex items-center justify-center gap-2 text-event-text/60">
-          <span className="text-3xl">🎉</span>
-          <span className="text-3xl">🎉</span>
-          <span className="text-3xl">🎉</span>
+      <Section variant="primary">
+        <div className="animate-fade-in-up text-center">
+          <p className="font-event-body text-white/70 text-sm mb-2 uppercase tracking-elegant">
+            {formatFullDate(event_date)}
+          </p>
+          <h2 className="font-event-display text-2xl sm:text-3xl text-white mb-4">
+            {phase_message}
+          </h2>
+          <div className="flex items-center justify-center gap-2 text-white/60">
+            <span className="text-3xl">🎉</span>
+            <span className="text-3xl">🎉</span>
+            <span className="text-3xl">🎉</span>
+          </div>
         </div>
-      </div>
+      </Section>
     );
   }
 
   // Event is ongoing (event_date passed but upload_end_time hasn't)
   if (phase === 'ongoing') {
     return (
-      <div className="animate-fade-in-up text-center py-8">
-        <h2 className="font-event-display text-2xl sm:text-3xl text-event-primary mb-4">
-          {phase_message}
-        </h2>
-      </div>
+      <Section variant="primary">
+        <div className="animate-fade-in-up text-center">
+          <h2 className="font-event-display text-2xl sm:text-3xl text-white mb-4">
+            {phase_message}
+          </h2>
+        </div>
+      </Section>
     );
   }
 
@@ -160,49 +169,38 @@ export function CountdownSection({ event_date, upload_end_time }: CountdownSecti
   ].filter(unit => unit.show);
 
   return (
-    <div className="animate-fade-in-up text-center py-8">
-      {/* Contextual message */}
-      <p className="font-event-body text-event-text/60 text-sm mb-2 uppercase tracking-wider">
-        {phase_message}
-      </p>
+    <Section variant="primary">
+      <div className="animate-fade-in-up text-center">
+        {/* Contextual message */}
+        <p className="font-event-body text-white/80 text-base sm:text-lg mb-8 italic">
+          {phase_message}
+        </p>
 
-      {/* Title - dynamic based on phase */}
-      {phase !== 'today' && (
-        <h2 className="font-event-display text-xl sm:text-2xl text-event-text/70 mb-6">
-          ¡Faltan...
-        </h2>
-      )}
-
-      {/* Today special title */}
-      {phase === 'today' && (
-        <h2 className="font-event-display text-xl sm:text-2xl text-event-primary mb-6">
-          ¡Quedan...
-        </h2>
-      )}
-
-      {/* Countdown numbers */}
-      <div className="flex items-center justify-center gap-2 sm:gap-4">
-        {time_units.map((unit, index) => (
-          <div key={unit.label} className="flex items-center">
-            <div className="flex flex-col items-center">
-              <div className="bg-event-primary/10 border border-event-primary/20 rounded-xl px-3 py-2 sm:px-5 sm:py-3 min-w-[60px] sm:min-w-[80px]">
-                <span className="font-event-display text-2xl sm:text-4xl text-event-primary font-semibold tabular-nums">
+        {/* Countdown numbers - styled like reference */}
+        <div className="flex items-center justify-center gap-1 sm:gap-2">
+          {time_units.map((unit, index) => (
+            <div key={unit.label} className="flex items-center">
+              <div className="flex flex-col items-center">
+                {/* Number */}
+                <span className="font-event-display text-4xl sm:text-5xl md:text-6xl text-white font-light tabular-nums">
                   {String(unit.value).padStart(2, '0')}
                 </span>
+                {/* Label */}
+                <span className="font-event-body text-xs sm:text-sm text-white/70 mt-1 uppercase tracking-wider">
+                  {unit.label}
+                </span>
               </div>
-              <span className="font-event-body text-xs sm:text-sm text-event-text/60 mt-2 uppercase tracking-wider">
-                {unit.label}
-              </span>
+              
+              {/* Separator */}
+              {index < time_units.length - 1 && (
+                <span className="font-event-display text-3xl sm:text-4xl md:text-5xl text-white/50 mx-2 sm:mx-4 self-start">
+                  :
+                </span>
+              )}
             </div>
-            
-            {index < time_units.length - 1 && (
-              <span className="font-event-display text-xl sm:text-2xl text-event-primary/50 mx-1 sm:mx-2 self-start mt-3">
-                :
-              </span>
-            )}
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
-    </div>
+    </Section>
   );
 }

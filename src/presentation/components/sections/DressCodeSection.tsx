@@ -1,4 +1,6 @@
 import type { DressCodeSection as DressCodeSectionData } from '../../../domain/event/Event';
+import { Section } from '../ui/Section';
+import { DressCodeIcon } from '../icons';
 
 interface DressCodeSectionProps {
   data: DressCodeSectionData;
@@ -6,35 +8,33 @@ interface DressCodeSectionProps {
 
 export function DressCodeSection({ data }: DressCodeSectionProps) {
   const {
-    title = 'Dress Code',
+    title = 'DRESS CODE',
     code,
     description,
-    icon = '👔',
     pinterest_url,
   } = data;
 
   return (
-    <div className="animate-fade-in-up w-full max-w-sm mx-auto py-6 text-center">
-      {/* Title */}
-      <h3 className="font-event-display text-xl sm:text-2xl text-event-primary mb-4">
-        {title}
-      </h3>
-
-      {/* Card */}
-      <div className="bg-event-primary/5 border border-event-primary/20 rounded-2xl p-6">
+    <Section variant="secondary">
+      <div className="animate-fade-in-up text-center">
         {/* Icon */}
-        <div className="text-4xl mb-3">
-          {icon}
+        <div className="mb-6 flex justify-center">
+          <DressCodeIcon className="w-14 h-14 md:w-16 md:h-16 text-white" />
         </div>
 
+        {/* Title */}
+        <h3 className="font-event-display text-lg sm:text-xl tracking-elegant uppercase text-white mb-4">
+          {title}
+        </h3>
+
         {/* Code */}
-        <p className="font-event-display text-lg text-event-text font-medium">
+        <p className="font-event-body text-white/90 text-base sm:text-lg">
           {code}
         </p>
 
         {/* Description */}
         {description && (
-          <p className="font-event-body text-event-text/60 text-sm mt-2">
+          <p className="font-event-body text-white/70 text-sm mt-2">
             {description}
           </p>
         )}
@@ -45,16 +45,15 @@ export function DressCodeSection({ data }: DressCodeSectionProps) {
             href={pinterest_url}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 mt-4 px-4 py-2 bg-event-primary/10 border border-event-primary/30 text-event-primary font-event-body text-sm rounded-full hover:bg-event-primary hover:text-white transition-colors duration-300"
+            className="inline-flex items-center gap-2 mt-6 px-6 py-3 bg-transparent border-2 border-white text-white font-event-body text-sm tracking-wider uppercase rounded-full hover:bg-white hover:text-event-secondary transition-colors duration-300"
           >
             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm0 19c-.721 0-1.418-.109-2.076-.312a4.5 4.5 0 01-2.603-2.603C7.109 15.418 7 14.721 7 14s.109-1.418.312-2.076a4.5 4.5 0 012.603-2.603C10.582 9.109 11.279 9 12 9s1.418.109 2.076.312a4.5 4.5 0 012.603 2.603C16.891 12.582 17 13.279 17 14s-.109 1.418-.312 2.076a4.5 4.5 0 01-2.603 2.603C13.418 18.891 12.721 19 12 19z" />
+              <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.162-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.957 1.406-5.957s-.359-.72-.359-1.781c0-1.663.967-2.911 2.168-2.911 1.024 0 1.518.769 1.518 1.688 0 1.029-.653 2.567-.992 3.992-.285 1.193.6 2.165 1.775 2.165 2.128 0 3.768-2.245 3.768-5.487 0-2.861-2.063-4.869-5.008-4.869-3.41 0-5.409 2.562-5.409 5.199 0 1.033.394 2.143.889 2.741.099.12.112.225.085.345-.09.375-.293 1.199-.334 1.363-.053.225-.172.271-.401.165-1.495-.69-2.433-2.878-2.433-4.646 0-3.776 2.748-7.252 7.92-7.252 4.158 0 7.392 2.967 7.392 6.923 0 4.135-2.607 7.462-6.233 7.462-1.214 0-2.354-.629-2.758-1.379l-.749 2.848c-.269 1.045-1.004 2.352-1.498 3.146 1.123.345 2.306.535 3.55.535 6.607 0 11.985-5.365 11.985-11.987C23.97 5.39 18.592.026 11.985.026L12.017 0z"/>
             </svg>
-            Ver inspiración en Pinterest
+            Ver inspiración
           </a>
         )}
       </div>
-    </div>
+    </Section>
   );
 }
-

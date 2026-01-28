@@ -22,7 +22,7 @@ export function UploadSection({
   event_slug
 }: UploadSectionProps) {
   const { message, projection_note } = data;
-  
+
   const window_status = useUploadWindow({ 
     script_url, 
     upload_start_time, 
@@ -203,17 +203,20 @@ export function UploadSection({
           <div className="bg-event-primary/5 border border-event-primary/20 rounded-2xl px-8 py-6 max-w-sm mx-auto">
             <div className="flex items-center justify-center gap-3 text-event-primary mb-2">
               <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
               <span className="font-event-display text-lg font-medium">Galería de fotos</span>
             </div>
             <p className="font-event-body text-event-text/60 text-sm">
-              La galería abrirá el {formatDate(upload_start_time)} a las {formatTime(upload_start_time)}
+              Se habilitará el {formatDate(upload_start_time)}
             </p>
           </div>
         </div>
       );
     }
+    
+    // Fallback
+    return null;
   }
 
   // Active - show upload button

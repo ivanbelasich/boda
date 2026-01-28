@@ -3,6 +3,8 @@ import { SiGooglecalendar } from 'react-icons/si';
 import { FaApple } from 'react-icons/fa';
 import type { CalendarSection as CalendarSectionData } from '../../../domain/event/Event';
 import { Modal } from '../ui';
+import { Section } from '../ui/Section';
+import { CalendarHeartIcon } from '../icons';
 
 interface CalendarSectionProps {
   data: CalendarSectionData;
@@ -78,7 +80,7 @@ export function CalendarSection({ data, event_title, event_date, event_location 
   const [is_modal_open, setIsModalOpen] = useState(false);
 
   const {
-    title = '¡Agendá la fecha!',
+    title = '¡Agendá la fecha en tu calendario!',
     show_google = true,
     show_apple = true,
   } = data;
@@ -106,43 +108,49 @@ export function CalendarSection({ data, event_title, event_date, event_location 
   };
 
   return (
-    <div className="animate-fade-in-up w-full max-w-md mx-auto py-6 text-center">
-      {/* Title */}
-      <h3 className="font-event-display text-xl sm:text-2xl text-event-primary mb-4">
-        {title}
-      </h3>
-
-      {/* Main button */}
-      <button
-        onClick={() => setIsModalOpen(true)}
-        className="inline-flex items-center gap-2 px-6 py-3 bg-event-primary text-white font-event-body text-lg rounded-full shadow-lg hover:bg-event-dark transition-all duration-300 cursor-pointer"
-      >
-        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-        </svg>
-        Agendar en mi calendario
-      </button>
-
-      {/* Calendar options modal */}
-      <Modal
-        is_open={is_modal_open}
-        on_close={() => setIsModalOpen(false)}
-        title="Elegí tu calendario"
-      >
-        <div className="space-y-3">
-          {visible_calendars.map((link) => (
-            <button
-              key={link.name}
-              onClick={() => handleClick(link)}
-              className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-event-light text-event-text font-event-body text-base rounded-full border border-event-primary/20 hover:bg-event-primary hover:text-white hover:border-event-primary transition-all duration-300 cursor-pointer"
-            >
-              {link.icon}
-              <span>Agregar a {link.name}</span>
-            </button>
-          ))}
+    <Section variant="light">
+      <div className="animate-fade-in-up text-center">
+        {/* Icon */}
+        <div className="mb-4 flex justify-center">
+          <CalendarHeartIcon className="w-12 h-12 md:w-14 md:h-14 text-event-text/70" />
         </div>
-      </Modal>
-    </div>
+
+        {/* Title */}
+        <p className="font-event-body text-event-text/80 text-base sm:text-lg mb-6">
+          {title}
+        </p>
+
+        {/* Main button with dropdown arrow */}
+        <button
+          onClick={() => setIsModalOpen(true)}
+          className="inline-flex items-center gap-2 px-8 py-3 bg-event-primary text-white font-event-body text-sm tracking-wider uppercase rounded-full hover:bg-event-dark transition-all duration-300 cursor-pointer"
+        >
+          AGENDAR EVENTO
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+
+        {/* Calendar options modal */}
+        <Modal
+          is_open={is_modal_open}
+          on_close={() => setIsModalOpen(false)}
+          title="Elegí tu calendario"
+        >
+          <div className="space-y-3">
+            {visible_calendars.map((link) => (
+              <button
+                key={link.name}
+                onClick={() => handleClick(link)}
+                className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-event-light text-event-text font-event-body text-base rounded-full border border-event-primary/20 hover:bg-event-primary hover:text-white hover:border-event-primary transition-all duration-300 cursor-pointer"
+              >
+                {link.icon}
+                <span>Agregar a {link.name}</span>
+              </button>
+            ))}
+          </div>
+        </Modal>
+      </div>
+    </Section>
   );
 }
-
