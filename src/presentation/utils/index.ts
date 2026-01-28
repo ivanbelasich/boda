@@ -1,2 +1,2 @@
-export { formatDate, formatTime, formatFullDate } from './date-formatters';
+export { formatDate, formatTime, formatFullDate, formatHeroDate, getYear, formatHeroDateParts } from './date-formatters';
 

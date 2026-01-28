@@ -50,3 +50,23 @@ export function getYear(date: Date): string {
   return date.getFullYear().toString();
 }
 
+/**
+ * Formats date in MES | DIA | AÑO format for hero section
+ * Returns object with month abbreviation, day number, and year
+ */
+export function formatHeroDateParts(date: Date): { month: string; day: string; year: string } {
+  const months = [
+    'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+    'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'
+  ];
+  
+  const month_index = date.getMonth();
+  const month_name = months[month_index];
+  const month_abbr = month_name.charAt(0).toUpperCase() + month_name.slice(1, 3).toUpperCase();
+  
+  return {
+    month: month_abbr,
+    day: date.getDate().toString(),
+    year: date.getFullYear().toString(),
+  };
+}
