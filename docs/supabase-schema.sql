@@ -18,21 +18,30 @@ CREATE TABLE IF NOT EXISTS events (
   subtitle VARCHAR(255),              -- Subtítulo opcional
   event_date TIMESTAMP WITH TIME ZONE NOT NULL,
   
-  -- Personalización visual
+  -- Personalización visual (ver docs/temas.md para detalle)
+  -- Campos disponibles en theme:
+  --   preset: string (elegant-gold, romantic-rose, modern-slate, forest-green, botanical-sage)
+  --   primary, secondary, primary_light, primary_dark: string (colores hex)
+  --   background, text: string (colores hex)
+  --   font_display, font_body: string (fuentes CSS)
+  --   hero_style: 'solid' | 'texture' | 'gradient'
+  --   hero_texture_url: string (URL de imagen para textura)
+  --   decorations: 'none' | 'minimal' | 'botanical' | 'romantic'
   theme JSONB DEFAULT '{"preset": "elegant-gold"}'::jsonb,
   cover_image_url TEXT,
   
-  -- Secciones de la landing (dinámicas)
-  sections JSONB DEFAULT '[]'::jsonb,
+-- Secciones de la landing (dinámicas)
+-- Tipos de secciones disponibles:
+--   hero, location, gift, dresscode, calendar, upload, gallery,
+--   instagram, rsvp, playlist, info, photo_gallery, footer
+-- NOTA: countdown se renderiza automáticamente después de hero, no incluirlo aquí
+sections JSONB DEFAULT '[]'::jsonb,
   
   -- Integración con Google Drive
   drive_script_url TEXT,              -- URL del Google Apps Script
   drive_folder_id VARCHAR(100),       -- ID de la carpeta (opcional, para referencia)
   
   -- Ventana de tiempo para upload de fotos
-  -- RECOMENDADO: Configurar upload_start_time ~1h después de event_date
-  --              y upload_end_time ~12h después de event_date
-  -- Si no se configura, la app usa valores por defecto (12h después de event_date)
   upload_start_time TIMESTAMP WITH TIME ZONE,
   upload_end_time TIMESTAMP WITH TIME ZONE,
   
@@ -73,69 +82,164 @@ CREATE TRIGGER update_events_updated_at
 ALTER TABLE events ENABLE ROW LEVEL SECURITY;
 
 -- Política: Lectura pública de eventos activos
+DROP POLICY IF EXISTS "Eventos activos son públicos" ON events;
 CREATE POLICY "Eventos activos son públicos"
   ON events
   FOR SELECT
   USING (is_active = true);
 
 -- ===========================================
--- Datos de ejemplo
+-- Estructura de Secciones (JSON)
 -- ===========================================
+-- 
+-- HERO:
+-- {
+--   "type": "hero",
+--   "pre_title": "¡NOS CASAMOS!",
+--   "names": ["Nico", "Sabri"]
+-- }
+-- NOTA: date y year se derivan automáticamente de event_date (single source of truth)
+--
+-- COUNTDOWN:
+-- Esta sección se renderiza AUTOMÁTICAMENTE después de HeroSection.
+-- NO es necesario incluirla en el array sections.
+-- Siempre muestra días (si > 0), horas, minutos y segundos.
+-- Tiene 6 fases: far_away, approaching, very_close, today, ongoing, past
+--
+-- LOCATION (se pueden tener múltiples, se muestran en grid):
+-- {
+--   "type": "location",
+--   "title": "Ceremonia",
+--   "venue_name": "Iglesia Nuestra Señora del Carmen",
+--   "address": "Av. Principal 123",
+--   "city": "Villa Allende, Córdoba",
+--   "datetime": "22 de Noviembre - 19:00 hs",
+--   "google_maps_url": "https://maps.google.com/...",
+--   "additional_info": "Recibí debajo las indicaciones para llegar."
+-- }
+--
+-- GIFT:
+-- {
+--   "type": "gift",
+--   "title": "NOSOTROS...",
+--   "message": "Si deseás realizarnos un regalo podés colaborar con nuestra Luna de Miel...",
+--   "bank_info": {
+--     "holder_name": "Juan Pérez",
+--     "cbu": "0000003100000000000000",
+--     "alias": "BODA.JUAN.MARIA",
+--     "bank_name": "Banco Galicia",
+--     "dni": "12345678"
+--   },
+--   "external_links": [{"label": "Falabella Novios", "url": "https://..."}],
+--   "mercadopago_link": "https://..."
+-- }
+--
+-- DRESSCODE:
+-- {
+--   "type": "dresscode",
+--   "title": "DRESS CODE",
+--   "code": "Vestimenta formal, elegante",
+--   "description": "Evitar color blanco",
+--   "pinterest_url": "https://pinterest.com/..."
+-- }
+--
+-- CALENDAR:
+-- {
+--   "type": "calendar",
+--   "title": "¡Agendá la fecha en tu calendario!",
+--   "show_google": true,
+--   "show_apple": true
+-- }
+--
+-- UPLOAD:
+-- {
+--   "type": "upload",
+--   "message": "¡Compartí este momento especial con nosotros!",
+--   "projection_note": "Las fotos se mostrarán en las pantallas del salón"
+-- }
+--
+-- INSTAGRAM:
+-- {
+--   "type": "instagram",
+--   "handle": "@bodanicoysabri",
+--   "message": "¡Preparate para nuestro gran día! Ya podés seguirnos...",
+--   "button_text": "VER EN INSTAGRAM"
+-- }
+--
+-- RSVP:
+-- {
+--   "type": "rsvp",
+--   "title": "CONFIRMACIÓN DE ASISTENCIA",
+--   "message": "Esperamos que seas parte de esta gran celebración...",
+--   "form_url": "https://forms.google.com/...",
+--   "button_text": "CONFIRMAR ASISTENCIA"
+-- }
+--
+-- PLAYLIST:
+-- {
+--   "type": "playlist",
+--   "title": "¿QUÉ CANCIONES NO PUEDEN FALTAR?",
+--   "message": "¡Ayudanos sugiriendo las canciones...",
+--   "form_url": "https://forms.google.com/...",
+--   "button_text": "SUGERIR CANCIÓN"
+-- }
+--
+-- INFO:
+-- {
+--   "type": "info",
+--   "title": "INFO ÚTIL",
+--   "message": "Te dejamos sugerencias de alojamientos y traslados...",
+--   "accommodations": [
+--     {"name": "Hotel X", "contact": "Tel: 123", "address": "Calle 1", "maps_url": "..."}
+--   ],
+--   "transfers": [
+--     {"name": "Remis Y", "contact": "Tel: 456", "website": "..."}
+--   ]
+-- }
+--
+-- PHOTO_GALLERY (fotos pre-cargadas de los novios):
+-- {
+--   "type": "photo_gallery",
+--   "title": "NOSOTROS...",
+--   "photos": ["url1", "url2", "url3"]
+-- }
+--
+-- FOOTER:
+-- {
+--   "type": "footer",
+--   "message": "¡Gracias por acompañarnos en este momento tan importante!"
+-- }
+--
 
--- Evento de ejemplo: Boda
--- Nota: HeroSection ya no usa "date" y "year" - se derivan automáticamente de event_date
--- Nota: CountdownSection se renderiza automáticamente, no es necesario incluirla en sections
-INSERT INTO events (slug, type, title, subtitle, event_date, drive_script_url, theme, sections, upload_start_time, upload_end_time)
-VALUES (
-  'ejemplo-boda',
-  'wedding',
-  'Juan & María',
-  'Nos casamos',
-  '2025-06-15T18:00:00-03:00',
-  NULL, -- Configurar después con tu URL de Apps Script
-  '{"preset": "elegant-gold"}'::jsonb,
-  '[
-    {
-      "type": "hero",
-      "pre_title": "Nos casamos",
-      "names": ["Juan", "María"]
-    },
-    {
-      "type": "upload",
-      "message": "¡Compartí este momento especial con nosotros!",
-      "projection_note": "Las fotos se mostrarán en las pantallas del salón"
-    }
-  ]'::jsonb,
-  '2025-06-15T20:00:00-03:00',  -- 2 horas después de event_date
-  '2025-06-16T06:00:00-03:00'   -- 12 horas después de event_date
-)
-ON CONFLICT (slug) DO NOTHING;
-
--- Evento de ejemplo: Quinceañera
-INSERT INTO events (slug, type, title, subtitle, event_date, theme, sections, upload_start_time, upload_end_time)
-VALUES (
-  'ejemplo-quince',
-  'quinceanera',
-  'Sofía',
-  'Mis 15',
-  '2025-08-20T20:00:00-03:00',
-  '{"preset": "romantic-rose"}'::jsonb,
-  '[
-    {
-      "type": "hero",
-      "pre_title": "Los 15 de",
-      "names": ["Sofía"]
-    },
-    {
-      "type": "upload",
-      "message": "¡Sacate fotos y compartilas!",
-      "projection_note": null
-    }
-  ]'::jsonb,
-  '2025-08-20T21:00:00-03:00',  -- 1 hora después de event_date
-  '2025-08-21T08:00:00-03:00'   -- 12 horas después de event_date
-)
-ON CONFLICT (slug) DO NOTHING;
+-- ===========================================
+-- Presets de Tema Disponibles
+-- ===========================================
+-- 
+-- elegant-gold: Dorado elegante (default)
+--   primary: #c59e81, secondary: #d4c4b8
+--   Fuentes: Playfair Display / Cormorant Garamond
+--   Decoraciones: minimal
+--
+-- romantic-rose: Rosa romántico
+--   primary: #d4a5a5, secondary: #e8d4d4
+--   Fuentes: Cormorant Garamond / Lora
+--   Decoraciones: romantic
+--
+-- modern-slate: Gris moderno
+--   primary: #64748b, secondary: #94a3b8
+--   Fuentes: Montserrat / Open Sans
+--   Decoraciones: none
+--
+-- forest-green: Verde bosque
+--   primary: #4a7c59, secondary: #6b9b7a
+--   Fuentes: Merriweather / Source Sans Pro
+--   Decoraciones: botanical
+--
+-- botanical-sage: Verde sage botánico (estilo agendalafecha)
+--   primary: #A8B5A0, secondary: #C5CEC5
+--   Fuentes: Cormorant Garamond / Lato
+--   Hero: texture, Decoraciones: botanical
+--
 
 -- ===========================================
 -- Consultas útiles
@@ -153,9 +257,11 @@ ON CONFLICT (slug) DO NOTHING;
 -- Configurar ventana de upload
 -- UPDATE events SET upload_start_time = '2025-06-15T20:00:00-03:00', upload_end_time = '2025-06-16T04:00:00-03:00' WHERE slug = 'ejemplo-boda';
 
--- Cambiar tema
--- UPDATE events SET theme = '{"preset": "romantic-rose"}'::jsonb WHERE slug = 'ejemplo-boda';
+-- Cambiar tema a botanical-sage
+-- UPDATE events SET theme = '{"preset": "botanical-sage"}'::jsonb WHERE slug = 'ejemplo-boda';
+
+-- Personalizar tema (override de colores)
+-- UPDATE events SET theme = '{"preset": "botanical-sage", "primary": "#8BA888", "decorations": "minimal"}'::jsonb WHERE slug = 'ejemplo-boda';
 
 -- Desactivar evento
 -- UPDATE events SET is_active = false WHERE slug = 'ejemplo-boda';
-

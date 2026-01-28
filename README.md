@@ -5,6 +5,7 @@ Plataforma para eventos (bodas, quinceañeras, fiestas) que permite crear landin
 ## Documentación
 
 - [Setup de Supabase](docs/supabase-schema.sql) - Schema SQL para la base de datos
+- [Migración de campos obsoletos](docs/migration-remove-obsolete-fields.sql) - Script para limpiar campos obsoletos en eventos existentes
 - [Configuración de Google Drive](docs/google-drive-setup.md) - Guía paso a paso
 - [Temas y personalización](docs/temas.md) - Presets y customización visual
 - [Roadmap detallado](docs/roadmap.md) - Plan de desarrollo y especificaciones

@@ -10,25 +10,31 @@ Dorado elegante, ideal para bodas clásicas.
 | Propiedad | Valor |
 |-----------|-------|
 | Primary | `#c59e81` |
+| Secondary | `#d4c4b8` |
 | Light | `#e1d4cc` |
 | Dark | `#a07a5c` |
 | Background | `#ffffff` |
 | Text | `#2f2f2f` |
 | Font Display | Playfair Display |
 | Font Body | Cormorant Garamond |
+| Hero Style | solid |
+| Decorations | minimal |
 
 ### `romantic-rose`
-Rosa romántico, ideal para quinceañeras.
+Rosa romántico, ideal para quinceañeras y bodas románticas.
 
 | Propiedad | Valor |
 |-----------|-------|
 | Primary | `#d4a5a5` |
+| Secondary | `#e8d4d4` |
 | Light | `#f0e0e0` |
 | Dark | `#b08080` |
 | Background | `#fff9f9` |
 | Text | `#3d2c2c` |
 | Font Display | Cormorant Garamond |
 | Font Body | Lora |
+| Hero Style | gradient |
+| Decorations | romantic |
 
 ### `modern-slate`
 Gris moderno, ideal para eventos corporativos.
@@ -36,25 +42,75 @@ Gris moderno, ideal para eventos corporativos.
 | Propiedad | Valor |
 |-----------|-------|
 | Primary | `#64748b` |
-| Light | `#e2e8f0` |
+| Secondary | `#94a3b8` |
+| Light | `#cbd5e1` |
 | Dark | `#475569` |
 | Background | `#f8fafc` |
 | Text | `#1e293b` |
-| Font Display | Inter |
-| Font Body | Inter |
+| Font Display | Montserrat |
+| Font Body | Open Sans |
+| Hero Style | solid |
+| Decorations | none |
 
 ### `forest-green`
 Verde bosque, ideal para eventos al aire libre.
 
 | Propiedad | Valor |
 |-----------|-------|
-| Primary | `#6b8e6b` |
-| Light | `#d4e5d4` |
-| Dark | `#4a6b4a` |
-| Background | `#fafdf7` |
-| Text | `#2d3a2d` |
-| Font Display | Playfair Display |
+| Primary | `#4a7c59` |
+| Secondary | `#6b9b7a` |
+| Light | `#8fbc8f` |
+| Dark | `#2d5a3d` |
+| Background | `#f5f9f5` |
+| Text | `#1a3320` |
+| Font Display | Merriweather |
 | Font Body | Source Sans Pro |
+| Hero Style | solid |
+| Decorations | botanical |
+
+### `botanical-sage` (NUEVO)
+Verde sage botánico, estilo inspirado en agendalafecha.com.
+
+| Propiedad | Valor |
+|-----------|-------|
+| Primary | `#A8B5A0` |
+| Secondary | `#C5CEC5` |
+| Light | `#D4DDD0` |
+| Dark | `#6B7A62` |
+| Background | `#FAFAFA` |
+| Text | `#3D4A3A` |
+| Font Display | Cormorant Garamond |
+| Font Body | Lato |
+| Hero Style | texture |
+| Decorations | botanical |
+
+---
+
+## Propiedades del tema
+
+### Colores
+| Propiedad | Descripción | Ejemplo |
+|-----------|-------------|---------|
+| `preset` | Nombre del preset base | `"elegant-gold"` |
+| `primary` | Color principal (botones, acentos) | `"#c59e81"` |
+| `secondary` | Color secundario (secciones alternadas) | `"#d4c4b8"` |
+| `primary_light` | Variante clara del primario | `"#e1d4cc"` |
+| `primary_dark` | Variante oscura del primario | `"#a07a5c"` |
+| `background` | Color de fondo | `"#ffffff"` |
+| `text` | Color de texto | `"#2f2f2f"` |
+
+### Tipografía
+| Propiedad | Descripción | Ejemplo |
+|-----------|-------------|---------|
+| `font_display` | Tipografía para títulos | `"Playfair Display"` |
+| `font_body` | Tipografía para cuerpo | `"Cormorant Garamond"` |
+
+### Estilos visuales (NUEVO)
+| Propiedad | Descripción | Valores |
+|-----------|-------------|---------|
+| `hero_style` | Estilo de fondo del hero | `"solid"`, `"texture"`, `"gradient"` |
+| `hero_texture_url` | URL de imagen para textura (opcional) | `"https://..."` |
+| `decorations` | Tipo de decoraciones en el hero | `"none"`, `"minimal"`, `"botanical"`, `"romantic"` |
 
 ---
 
@@ -64,17 +120,18 @@ Verde bosque, ideal para eventos al aire libre.
 
 ```sql
 UPDATE events 
-SET theme = '{"preset": "romantic-rose"}'::jsonb
+SET theme = '{"preset": "botanical-sage"}'::jsonb
 WHERE slug = 'mi-evento';
 ```
 
-### Opción 2: Personalizar colores sobre un preset
+### Opción 2: Personalizar sobre un preset
 
 ```sql
 UPDATE events 
 SET theme = '{
-  "preset": "elegant-gold",
-  "primary_color": "#d4af37"
+  "preset": "botanical-sage",
+  "primary": "#8BA888",
+  "decorations": "minimal"
 }'::jsonb
 WHERE slug = 'mi-evento';
 ```
@@ -84,84 +141,121 @@ WHERE slug = 'mi-evento';
 ```sql
 UPDATE events 
 SET theme = '{
-  "primary_color": "#8B0000",
+  "primary": "#8B0000",
+  "secondary": "#A52A2A",
   "primary_light": "#CD5C5C",
   "primary_dark": "#5C0000",
-  "background_color": "#FFF5F5",
-  "text_color": "#2D1515",
+  "background": "#FFF5F5",
+  "text": "#2D1515",
   "font_display": "Georgia",
-  "font_body": "Arial"
+  "font_body": "Arial",
+  "hero_style": "gradient",
+  "decorations": "romantic"
 }'::jsonb
 WHERE slug = 'mi-evento';
 ```
 
 ---
 
-## Propiedades del tema
+## Estilos de Hero
 
-| Propiedad | Descripción | Ejemplo |
-|-----------|-------------|---------|
-| `preset` | Nombre del preset base | `"elegant-gold"` |
-| `primary_color` | Color principal (botones, acentos) | `"#c59e81"` |
-| `primary_light` | Variante clara del primario | `"#e1d4cc"` |
-| `primary_dark` | Variante oscura del primario | `"#a07a5c"` |
-| `background_color` | Color de fondo | `"#ffffff"` |
-| `text_color` | Color de texto | `"#2f2f2f"` |
-| `font_display` | Tipografía para títulos | `"Playfair Display"` |
-| `font_body` | Tipografía para cuerpo | `"Cormorant Garamond"` |
+### `solid`
+Fondo con el color de background del tema. Simple y limpio.
+
+### `texture`
+Fondo con textura tipo papel/acuarela. Ideal para temas elegantes y naturales.
+Se puede personalizar con `hero_texture_url` para usar una imagen propia.
+
+### `gradient`
+Gradiente de `primary_light` a `background`. Suave y romántico.
 
 ---
 
-## Agregar nuevos presets
+## Tipos de Decoraciones
 
-Editar el archivo `src/config/theme-presets.ts`:
+### `none`
+Sin decoraciones. El hero se muestra limpio sin elementos decorativos.
 
-```typescript
-export const THEME_PRESETS = {
-  // ... presets existentes ...
-  
-  'mi-nuevo-tema': {
-    primary_color: '#...',
-    primary_light: '#...',
-    primary_dark: '#...',
-    background_color: '#...',
-    text_color: '#...',
-    font_display: 'Mi Fuente',
-    font_body: 'Otra Fuente',
-  },
-};
-```
+### `minimal`
+Decoración mínima con un simple flourish elegante en el centro superior.
 
-**Importante**: Si usas fuentes de Google Fonts, agregalas en `index.html`:
+### `botanical`
+Hojas y ramas en las esquinas del hero. Estilo natural y fresco.
+Ideal para bodas en jardín o eventos al aire libre.
+
+### `romantic`
+Corazón sutil en el centro y marcos decorativos en las esquinas.
+Ideal para bodas y eventos románticos.
+
+---
+
+## Secciones con fondos alternados
+
+Las secciones alternan automáticamente entre diferentes fondos:
+
+| Variante | Color de fondo | Color de texto |
+|----------|----------------|----------------|
+| `light` | Background del tema | Texto del tema |
+| `primary` | Color primary | Blanco |
+| `secondary` | Color secondary | Blanco |
+
+El orden típico de secciones:
+- Hero → transparent/texture
+- Countdown → primary
+- Locations → light
+- Gift → primary
+- Instagram → light
+- DressCode → secondary
+- RSVP → light
+- Calendar → light
+- Playlist → light
+- Info → primary
+- Footer → secondary
+
+---
+
+## Google Fonts
+
+Si usas fuentes de Google Fonts, asegurate de agregarlas en `index.html`:
 
 ```html
-<link href="https://fonts.googleapis.com/css2?family=Mi+Fuente&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Lato:wght@300;400;700&family=Playfair+Display:wght@400;500;600&display=swap" rel="stylesheet">
 ```
+
+Las fuentes incluidas por defecto son:
+- Playfair Display
+- Cormorant Garamond
+- Lora
+- Montserrat
+- Open Sans
+- Merriweather
+- Source Sans Pro
+- Lato
 
 ---
 
 ## Cómo funciona técnicamente
 
 1. El evento se carga desde Supabase con su `theme`
-2. El hook `useEventTheme` procesa el tema:
-   - Si hay `preset`, carga los valores base
+2. El hook `useFullEventTheme` procesa el tema:
+   - Si hay `preset`, carga los valores base del preset
    - Aplica cualquier override personalizado
-3. Se setean CSS custom properties en `:root`
+   - Retorna `style_vars` (CSS), `hero_style` y `decorations`
+3. Se setean CSS custom properties en el `<main>`
 4. Tailwind usa esas variables via `@theme` en `index.css`
-
-```css
-/* index.css */
-@theme {
-  --color-event-primary: #c59e81;  /* Se sobrescribe dinámicamente */
-  --font-event-display: "Playfair Display";
-  /* ... */
-}
-```
+5. El `HeroSection` recibe `hero_style` y `decorations` como props
 
 ```tsx
-// Componentes usan clases de Tailwind
-<h1 className="text-event-primary font-event-display">
-  Título
-</h1>
-```
+// EventPage.tsx
+const theme_config = useFullEventTheme(event?.theme);
 
+<main style={theme_config.style_vars}>
+  <HeroSection 
+    data={section}
+    hero_style={theme_config.hero_style}
+    decorations={theme_config.decorations}
+  />
+</main>
+```
