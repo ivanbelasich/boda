@@ -4,19 +4,20 @@ Plataforma para eventos (bodas, quinceañeras, fiestas) que permite crear landin
 
 ## Documentación
 
-- [Setup de Supabase](docs/supabase-schema.sql) - Schema SQL para la base de datos
-- [Migración de campos obsoletos](docs/migration-remove-obsolete-fields.sql) - Script para limpiar campos obsoletos en eventos existentes
+- [Setup de Supabase](docs/supabase-schema.sql) - Schema SQL y estructura de secciones
+- [Evento de prueba completo](docs/evento-prueba-completo.sql) - Ejemplo con todas las secciones
 - [Configuración de Google Drive](docs/google-drive-setup.md) - Guía paso a paso
 - [Temas y personalización](docs/temas.md) - Presets y customización visual
-- [Roadmap detallado](docs/roadmap.md) - Plan de desarrollo y especificaciones
+- [Roadmap](docs/roadmap.md) - Features futuras y pendientes
 
 ## Features
 
-- 🎉 **Landing pages dinámicas** - Una landing única por evento via URL (`/eventos/mi-evento`)
-- 📸 **Álbum de fotos en vivo** - Los invitados suben fotos que se muestran en tiempo real
-- 🎨 **Temas personalizables** - 4 presets de colores/tipografías por evento
-- ⏰ **Ventana de tiempo** - El upload se habilita solo durante el evento
-- 📺 **Modo presentación** - Slideshow para proyectar en pantallas del evento
+- **Landing pages dinámicas** - Una landing única por evento via URL (`/eventos/mi-evento`)
+- **12 secciones modulares** - Hero, Countdown, Location, Gift, DressCode, Calendar, Upload, Instagram, RSVP, Playlist, Info, PhotoGallery, Footer
+- **Álbum de fotos en vivo** - Los invitados suben fotos que se muestran en tiempo real
+- **5 temas personalizables** - Presets de colores/tipografías con estilos visuales
+- **Ventana de tiempo** - El upload se habilita solo durante el evento
+- **Modo presentación** - Slideshow para proyectar en pantallas del evento
 
 ## Tech Stack
 
@@ -32,7 +33,7 @@ Plataforma para eventos (bodas, quinceañeras, fiestas) que permite crear landin
 src/
 ├── domain/                    # Entidades y contratos
 │   └── event/
-│       ├── Event.ts           # Tipos de dominio
+│       ├── Event.ts           # Tipos de dominio (secciones, temas)
 │       └── EventRepository.ts # Interface (port)
 │
 ├── infrastructure/            # Implementaciones externas
@@ -45,19 +46,36 @@ src/
 │
 ├── presentation/              # UI y lógica de presentación
 │   ├── hooks/
-│   │   ├── useEventTheme.ts
+│   │   ├── useEventTheme.ts       # Hook básico de tema
+│   │   ├── useFullEventTheme.ts   # Hook completo (incluye hero_style, decorations)
 │   │   ├── usePhotoSlideshow.ts
 │   │   ├── usePhotoUpload.ts
 │   │   └── useUploadWindow.ts
 │   ├── utils/
 │   │   └── date-formatters.ts
 │   ├── components/
+│   │   ├── icons/
+│   │   │   └── EventIcons.tsx     # Iconos SVG para secciones
+│   │   ├── ui/
+│   │   │   ├── Section.tsx        # Componente base de sección
+│   │   │   └── Modal.tsx
 │   │   └── sections/
 │   │       ├── HeroSection.tsx
-│   │       └── UploadSection.tsx
+│   │       ├── CountdownSection.tsx
+│   │       ├── LocationSection.tsx
+│   │       ├── GiftSection.tsx
+│   │       ├── DressCodeSection.tsx
+│   │       ├── CalendarSection.tsx
+│   │       ├── UploadSection.tsx
+│   │       ├── InstagramSection.tsx
+│   │       ├── RSVPSection.tsx
+│   │       ├── PlaylistSection.tsx
+│   │       ├── InfoSection.tsx
+│   │       ├── PhotoGallerySection.tsx
+│   │       └── FooterSection.tsx
 │   └── pages/
-│       ├── EventPage.tsx      # Landing del evento
-│       └── PresentationPage.tsx # Slideshow
+│       ├── EventPage.tsx          # Landing del evento
+│       └── PresentationPage.tsx   # Slideshow
 │
 ├── config/
 │   └── theme-presets.ts       # Presets de temas
@@ -105,20 +123,19 @@ Sigue las instrucciones en [`docs/google-drive-setup.md`](docs/google-drive-setu
 
 ### 5. Crear un evento de prueba
 
-Ejecuta en Supabase SQL Editor:
+Ejecuta en Supabase SQL Editor el contenido de [`docs/evento-prueba-completo.sql`](docs/evento-prueba-completo.sql) o un evento básico:
 
 ```sql
-INSERT INTO events (slug, type, title, event_date, drive_script_url, theme, sections) 
+INSERT INTO events (slug, type, title, event_date, theme, sections) 
 VALUES (
   'mi-evento',
   'wedding',
   'Mi Evento',
   '2025-06-15T18:00:00-03:00',
-  'https://script.google.com/macros/s/TU_SCRIPT_URL/exec',
   '{"preset": "elegant-gold"}',
   '[
-    {"type": "hero", "pre_title": "Te invitamos", "names": ["Nombre 1", "Nombre 2"], "date": "15 de Junio", "year": "2025"},
-    {"type": "upload", "message": "¡Compartí tus fotos!", "projection_note": "Se mostrarán en las pantallas del evento"}
+    {"type": "hero", "pre_title": "Te invitamos", "names": ["Nombre 1", "Nombre 2"]},
+    {"type": "upload", "message": "¡Compartí tus fotos!"}
   ]'
 );
 ```
@@ -133,21 +150,44 @@ Visita:
 - Landing: http://localhost:5173/eventos/mi-evento
 - Presentación: http://localhost:5173/eventos/mi-evento/presentacion
 
+## Secciones disponibles
+
+| Sección | Descripción |
+|---------|-------------|
+| `hero` | Encabezado principal con nombres y fecha |
+| `countdown` | Cuenta regresiva (automática, no incluir en sections) |
+| `location` | Ubicación (puede haber múltiples: ceremonia, fiesta) |
+| `gift` | Datos bancarios y links de regalos |
+| `dresscode` | Información de vestimenta |
+| `calendar` | Agregar al calendario (Google, Apple) |
+| `upload` | Subir fotos al álbum en vivo |
+| `instagram` | Cuenta de Instagram del evento |
+| `rsvp` | Confirmación de asistencia (Google Forms) |
+| `playlist` | Sugerencias de canciones (Google Forms) |
+| `info` | Info útil: hoteles, traslados |
+| `photo_gallery` | Galería de fotos pre-cargadas |
+| `footer` | Mensaje de cierre |
+
+Ver estructura JSON de cada sección en [`docs/supabase-schema.sql`](docs/supabase-schema.sql).
+
 ## Temas disponibles
 
-| Preset | Descripción |
-|--------|-------------|
-| `elegant-gold` | Dorado elegante (bodas clásicas) |
-| `romantic-rose` | Rosa romántico (quinceañeras) |
-| `modern-slate` | Gris moderno (corporativo) |
-| `forest-green` | Verde bosque (eventos al aire libre) |
+| Preset | Descripción | Decoraciones |
+|--------|-------------|--------------|
+| `elegant-gold` | Dorado elegante (bodas clásicas) | minimal |
+| `romantic-rose` | Rosa romántico (quinceañeras) | romantic |
+| `modern-slate` | Gris moderno (corporativo) | none |
+| `forest-green` | Verde bosque (eventos al aire libre) | botanical |
+| `botanical-sage` | Verde sage botánico | botanical |
+
+Ver personalización detallada en [`docs/temas.md`](docs/temas.md).
 
 ### Usar un tema
 
 En Supabase, configura el campo `theme` del evento:
 
 ```json
-{"preset": "romantic-rose"}
+{"preset": "botanical-sage"}
 ```
 
 O personaliza colores específicos:
@@ -155,7 +195,9 @@ O personaliza colores específicos:
 ```json
 {
   "preset": "elegant-gold",
-  "primary_color": "#d4af37"
+  "primary": "#d4af37",
+  "hero_style": "gradient",
+  "decorations": "romantic"
 }
 ```
 
@@ -186,27 +228,6 @@ npm run build    # Build producción
 npm run preview  # Preview del build
 npm run lint     # Linter
 ```
-
-## Roadmap
-
-### Fase 1: Core (MVP Completo)
-- [ ] Countdown (cuenta regresiva)
-- [ ] Location (ubicaciones múltiples: ceremonia/fiesta)
-- [ ] Gift (datos bancarios + lista de regalos)
-- [ ] DressCode (info de vestimenta)
-- [ ] Calendar (agendar en Google/Outlook/Apple)
-
-### Fase 2: Engagement
-- [ ] RSVP (confirmación vía formulario externo)
-- [ ] Instagram (cuenta del evento)
-- [ ] InfoUtil (hoteles, traslados)
-
-### Fase 3: Premium
-- [ ] Playlist (sugerencias de canciones vía formulario)
-- [ ] BackgroundMusic (música de fondo)
-- [ ] Panel Admin
-
-Ver especificaciones detalladas en [docs/roadmap.md](docs/roadmap.md)
 
 ## Licencia
 
