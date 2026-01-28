@@ -3,6 +3,7 @@ export interface HeroSection {
   type: 'hero';
   pre_title?: string;
   names: string[];
+  // date and year are derived from event_date, not stored in JSON
 }
 
 export interface UploadSection {
@@ -14,6 +15,15 @@ export interface UploadSection {
 export interface GallerySection {
   type: 'gallery';
   is_enabled: boolean;
+}
+
+// CountdownSection is automatically rendered after HeroSection
+// It always shows days (if > 0), hours, minutes, and seconds
+// No need to include it in sections array
+export interface CountdownSection {
+  type: 'countdown';
+  // This interface exists for type safety but countdown is always auto-rendered
+  // No configurable properties - always shows all time units
 }
 
 export interface LocationSection {
@@ -66,22 +76,91 @@ export type EventSection =
   | HeroSection 
   | UploadSection 
   | GallerySection
+  | CountdownSection
   | LocationSection
   | GiftSection
   | DressCodeSection
-  | CalendarSection;
+  | CalendarSection
+  | InstagramSection
+  | RSVPSection
+  | PlaylistSection
+  | InfoSection
+  | PhotoGallerySection
+  | FooterSection;
+
+export interface InstagramSection {
+  type: 'instagram';
+  handle: string;
+  message?: string;
+  button_text?: string;
+}
+
+export interface RSVPSection {
+  type: 'rsvp';
+  title?: string;
+  message?: string;
+  form_url: string;
+  button_text?: string;
+}
+
+export interface PlaylistSection {
+  type: 'playlist';
+  title?: string;
+  message?: string;
+  form_url: string;
+  button_text?: string;
+}
+
+export interface InfoSection {
+  type: 'info';
+  title?: string;
+  message?: string;
+  accommodations?: Array<{
+    name: string;
+    contact?: string;
+    address?: string;
+    maps_url?: string;
+  }>;
+  transfers?: Array<{
+    name: string;
+    contact?: string;
+    website?: string;
+  }>;
+}
+
+export interface PhotoGallerySection {
+  type: 'photo_gallery';
+  title?: string;
+  photos: string[];
+}
+
+export interface FooterSection {
+  type: 'footer';
+  message?: string;
+}
+
+export type HeroStyle = 'solid' | 'texture' | 'gradient';
+export type DecorationStyle = 'none' | 'minimal' | 'botanical' | 'romantic';
+export type ButtonStyle = 'rounded' | 'pill' | 'square';
 
 // Visual event configuration
 export interface EventTheme {
   preset?: string;
-  // Optional overrides
+  // Color overrides
   primary?: string;
+  secondary?: string;
   primary_light?: string;
   primary_dark?: string;
   background?: string;
   text?: string;
+  // Typography overrides
   font_display?: string;
   font_body?: string;
+  // Visual style options
+  hero_style?: HeroStyle;
+  hero_texture_url?: string;
+  decorations?: DecorationStyle;
+  button_style?: ButtonStyle;
 }
 
 // Main event entity
