@@ -130,16 +130,16 @@ export function CountdownSection({ event_date, upload_end_time }: CountdownSecti
     return (
       <Section variant="primary">
         <div className="animate-fade-in-up text-center">
-          <p className="font-event-body text-white/70 text-sm mb-2 uppercase tracking-elegant">
+          <p className="font-event-body text-white/80 text-sm mb-3 uppercase tracking-elegant drop-shadow-sm">
             {formatFullDate(event_date)}
           </p>
-          <h2 className="font-event-display text-2xl sm:text-3xl text-white mb-4">
+          <h2 className="font-event-display text-3xl sm:text-4xl md:text-5xl text-white mb-6 drop-shadow-lg">
             {phase_message}
           </h2>
-          <div className="flex items-center justify-center gap-2 text-white/60">
-            <span className="text-3xl">🎉</span>
-            <span className="text-3xl">🎉</span>
-            <span className="text-3xl">🎉</span>
+          <div className="flex items-center justify-center gap-3 text-white/70">
+            <span className="text-4xl animate-pulse-soft">🎉</span>
+            <span className="text-4xl animate-pulse-soft" style={{ animationDelay: '0.2s' }}>🎉</span>
+            <span className="text-4xl animate-pulse-soft" style={{ animationDelay: '0.4s' }}>🎉</span>
           </div>
         </div>
       </Section>
@@ -151,9 +151,15 @@ export function CountdownSection({ event_date, upload_end_time }: CountdownSecti
     return (
       <Section variant="primary">
         <div className="animate-fade-in-up text-center">
-          <h2 className="font-event-display text-2xl sm:text-3xl text-white mb-4">
+          <h2 className="font-event-display text-3xl sm:text-4xl md:text-5xl text-white mb-4 drop-shadow-lg animate-pulse-soft">
             {phase_message}
           </h2>
+          <div className="inline-flex items-center gap-2 mt-4 px-6 py-3 bg-white/10 backdrop-blur-sm rounded-full border border-white/20">
+            <div className="w-2 h-2 bg-white rounded-full animate-ping" />
+            <span className="font-event-body text-white/90 text-sm uppercase tracking-wider">
+              En vivo
+            </span>
+          </div>
         </div>
       </Section>
     );
@@ -171,35 +177,71 @@ export function CountdownSection({ event_date, upload_end_time }: CountdownSecti
   return (
     <Section variant="primary">
       <div className="animate-fade-in-up text-center">
-        {/* Contextual message */}
-        <p className="font-event-body text-white/80 text-base sm:text-lg mb-8 italic">
+        {/* Contextual message with enhanced styling */}
+        <p className="font-event-body text-white/90 text-base sm:text-lg md:text-xl mb-10 italic drop-shadow-md">
           {phase_message}
         </p>
 
-        {/* Countdown numbers - styled like reference */}
-        <div className="flex items-center justify-center gap-1 sm:gap-2">
+        {/* Countdown with circular cards and glow effects */}
+        <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 md:gap-6 max-w-4xl mx-auto">
           {time_units.map((unit, index) => (
-            <div key={unit.label} className="flex items-center">
-              <div className="flex flex-col items-center">
-                {/* Number */}
-                <span className="font-event-display text-4xl sm:text-5xl md:text-6xl text-white font-light tabular-nums">
-                  {String(unit.value).padStart(2, '0')}
-                </span>
-                {/* Label */}
-                <span className="font-event-body text-xs sm:text-sm text-white/70 mt-1 uppercase tracking-wider">
-                  {unit.label}
-                </span>
+            <div key={unit.label} className="flex items-center animate-scale-in" style={{ animationDelay: `${index * 0.1}s` }}>
+              {/* Circular countdown card */}
+              <div className="relative group">
+                {/* Glow effect */}
+                <div className="absolute inset-0 bg-white/20 rounded-full blur-xl group-hover:blur-2xl transition-all duration-300 opacity-50" />
+                
+                {/* Card */}
+                <div className="relative flex flex-col items-center justify-center w-20 h-20 sm:w-24 sm:h-24 md:w-32 md:h-32 bg-white/10 backdrop-blur-md rounded-full border-2 border-white/30 shadow-strong hover:scale-110 hover:bg-white/15 transition-all duration-300">
+                  {/* SVG Progress Ring (decorative) */}
+                  <svg className="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 100 100">
+                    <circle
+                      cx="50"
+                      cy="50"
+                      r="45"
+                      fill="none"
+                      stroke="rgba(255, 255, 255, 0.1)"
+                      strokeWidth="2"
+                    />
+                    <circle
+                      cx="50"
+                      cy="50"
+                      r="45"
+                      fill="none"
+                      stroke="rgba(255, 255, 255, 0.3)"
+                      strokeWidth="2"
+                      strokeDasharray="283"
+                      strokeDashoffset={283 - (283 * (unit.value % 60)) / 60}
+                      className="transition-all duration-1000"
+                    />
+                  </svg>
+                  
+                  {/* Number with flip animation */}
+                  <span className="relative font-event-display text-2xl sm:text-3xl md:text-4xl text-white font-light tabular-nums drop-shadow-lg animate-flip">
+                    {String(unit.value).padStart(2, '0')}
+                  </span>
+                  
+                  {/* Label */}
+                  <span className="relative font-event-body text-[0.6rem] sm:text-xs text-white/80 mt-1 uppercase tracking-wider drop-shadow-sm">
+                    {unit.label}
+                  </span>
+                </div>
               </div>
               
-              {/* Separator */}
+              {/* Separator with gradient */}
               {index < time_units.length - 1 && (
-                <span className="font-event-display text-3xl sm:text-4xl md:text-5xl text-white/50 mx-2 sm:mx-4 self-start">
+                <span className="font-event-display text-2xl sm:text-3xl md:text-4xl text-white/40 mx-1 sm:mx-2 animate-pulse-soft drop-shadow-md">
                   :
                 </span>
               )}
             </div>
           ))}
         </div>
+
+        {/* Date display below countdown */}
+        <p className="font-event-body text-white/60 text-xs sm:text-sm mt-8 uppercase tracking-elegant drop-shadow-sm">
+          {formatFullDate(event_date)}
+        </p>
       </div>
     </Section>
   );

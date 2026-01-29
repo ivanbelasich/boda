@@ -68,7 +68,7 @@ Verde bosque, ideal para eventos al aire libre.
 | Hero Style | solid |
 | Decorations | botanical |
 
-### `botanical-sage` (NUEVO)
+### `botanical-sage`
 Verde sage botánico, estilo inspirado en agendalafecha.com.
 
 | Propiedad | Valor |
@@ -83,6 +83,79 @@ Verde sage botánico, estilo inspirado en agendalafecha.com.
 | Font Body | Lato |
 | Hero Style | texture |
 | Decorations | botanical |
+
+### `midnight-navy`
+Azul noche elegante, ideal para eventos formales o nocturnos.
+
+| Propiedad | Valor |
+|-----------|-------|
+| Primary | `#2c3e50` |
+| Secondary | `#34495e` |
+| Light | `#5d6d7e` |
+| Dark | `#1a252f` |
+| Background | `#ecf0f1` |
+| Text | `#1a252f` |
+| Font Display | Cinzel |
+| Font Body | Raleway |
+| Hero Style | gradient |
+| Decorations | minimal |
+
+### `terracotta-warm`
+Terracota cálido mediterráneo, ideal para bodas rústicas o al aire libre.
+
+| Propiedad | Valor |
+|-----------|-------|
+| Primary | `#c17f59` |
+| Secondary | `#d4a574` |
+| Light | `#e8c9a8` |
+| Dark | `#8b5a3c` |
+| Background | `#fdf8f5` |
+| Text | `#3d2914` |
+| Font Display | DM Serif Display |
+| Font Body | Lora |
+| Hero Style | texture |
+| Decorations | minimal |
+
+### `lavender-dream`
+Lavanda suave, estilo dreamy ideal para bodas de jardín o vintage.
+
+| Propiedad | Valor |
+|-----------|-------|
+| Primary | `#9b8aa6` |
+| Secondary | `#b8a9c4` |
+| Light | `#d4c5dc` |
+| Dark | `#6b5d73` |
+| Background | `#f8f6fa` |
+| Text | `#3d3545` |
+| Font Display | Quicksand |
+| Font Body | Lora |
+| Hero Style | gradient |
+| Decorations | romantic |
+
+---
+
+## Identidad por tema (variantes)
+
+Cada preset tiene una **identidad visual** que va más allá de los colores:
+
+| Preset | Animación | Espaciado | Hero | Iconos | Bordes |
+|--------|-----------|-----------|------|--------|--------|
+| elegant-gold | elegante | normal | centrado | círculo | redondeado |
+| romantic-rose | dreamy | aireado | elevado (card) | ornate | pill |
+| modern-slate | minimal | compacto | minimal | outline (sin relleno) | sharp |
+| forest-green | orgánico | normal | centrado | círculo | redondeado |
+| botanical-sage | orgánico | aireado | centrado | soft | soft |
+| midnight-navy | dramático | normal | dramático (grande) | square | sharp |
+| terracotta-warm | orgánico | aireado | centrado | círculo | redondeado |
+| lavender-dream | dreamy | aireado | elevado | ornate | pill |
+
+- **Espaciado**: compact (menos padding en secciones), normal, airy (más espacio).
+- **Hero**: centered, elevated (contenido en card con blur), minimal (más compacto), dramatic (tipografía más grande y bold).
+- **Iconos**: minimal (solo borde), circle (fondo circular), ornate (círculo con sombra suave), square (esquinas rectas).
+- **Bordes**: sharp (0), rounded, soft (1.5rem), pill (9999px).
+- **Animaciones**: duración y estilo (elegant, dreamy, minimal, dramatic, organic) aplicados vía `data-theme` en el `<main>`.
+
+El frontend aplica `data-theme="{preset}"` en el contenedor principal; los estilos por tema están en `src/index.css` bajo `[data-theme="..."]`.
 
 ---
 
@@ -233,6 +306,10 @@ Las fuentes incluidas por defecto son:
 - Merriweather
 - Source Sans Pro
 - Lato
+- Cinzel (midnight-navy)
+- Raleway (midnight-navy)
+- DM Serif Display (terracotta-warm)
+- Quicksand (lavender-dream)
 
 ---
 

@@ -110,23 +110,25 @@ export function CalendarSection({ data, event_title, event_date, event_location 
   return (
     <Section variant="light">
       <div className="animate-fade-in-up text-center">
-        {/* Icon */}
-        <div className="mb-4 flex justify-center">
-          <CalendarHeartIcon className="w-12 h-12 md:w-14 md:h-14 text-event-text/70" />
+        {/* Icon with enhanced styling */}
+        <div className="mb-8 flex justify-center">
+          <div className="icon-circle p-5 animate-scale-in">
+            <CalendarHeartIcon className="w-16 h-16 md:w-20 md:h-20 text-white drop-shadow-lg" />
+          </div>
         </div>
 
         {/* Title */}
-        <p className="font-event-body text-event-text/80 text-base sm:text-lg mb-6">
+        <p className="font-event-body text-event-text/80 text-base sm:text-lg md:text-xl mb-10 max-w-2xl mx-auto leading-relaxed">
           {title}
         </p>
 
-        {/* Main button with dropdown arrow */}
+        {/* Button with enhanced hover */}
         <button
           onClick={() => setIsModalOpen(true)}
-          className="inline-flex items-center gap-2 px-8 py-3 bg-event-primary text-white font-event-body text-sm tracking-wider uppercase rounded-full hover:bg-event-dark transition-all duration-300 cursor-pointer"
+          className="group inline-flex items-center gap-3 px-10 py-4 bg-event-primary text-white font-event-body text-sm tracking-wider uppercase rounded-full hover:bg-event-dark transition-smooth shadow-strong hover:shadow-colored hover-lift cursor-pointer"
         >
           AGENDAR EVENTO
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg className="w-5 h-5 group-hover:rotate-180 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
           </svg>
         </button>
@@ -142,7 +144,7 @@ export function CalendarSection({ data, event_title, event_date, event_location 
               <button
                 key={link.name}
                 onClick={() => handleClick(link)}
-                className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-event-light text-event-text font-event-body text-base rounded-full border border-event-primary/20 hover:bg-event-primary hover:text-white hover:border-event-primary transition-all duration-300 cursor-pointer"
+                className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-event-light text-event-text font-event-body text-base rounded-2xl border border-event-primary/20 hover:bg-event-primary hover:text-white hover:border-event-primary transition-smooth shadow-soft hover:shadow-medium cursor-pointer"
               >
                 {link.icon}
                 <span>Agregar a {link.name}</span>

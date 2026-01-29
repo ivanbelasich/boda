@@ -16,6 +16,7 @@ import { InfoSection } from '../components/sections/InfoSection';
 import { PhotoGallerySection } from '../components/sections/PhotoGallerySection';
 import { FooterSection } from '../components/sections/FooterSection';
 import { Section } from '../components/ui/Section';
+import { ThemeProvider } from '../context/ThemeContext';
 import { useFullEventTheme } from '../hooks/useEventTheme';
 import { getUploadWindowStatus } from '../hooks/useUploadWindow';
 
@@ -204,6 +205,7 @@ export function EventPage() {
               hero_style={theme_config.hero_style}
               decorations={theme_config.decorations}
               texture_url={theme_config.hero_texture_url}
+              variant={theme_config.variant}
             />
             <CountdownSection 
               key="countdown" 
@@ -287,21 +289,30 @@ export function EventPage() {
   };
 
   return (
-    <main 
-      className="min-h-screen bg-event-bg"
-      style={theme_config.style_vars as React.CSSProperties}
-    >
-      {/* Render sections */}
-      {grouped_sections.map(renderGroupedSection)}
+    <ThemeProvider preset={theme_config.preset} variant={theme_config.variant}>
+      <main 
+        className="min-h-screen bg-event-bg theme-root"
+        style={theme_config.style_vars as React.CSSProperties}
+        data-theme={theme_config.preset}
+      >
+        {/* Render sections */}
+        {grouped_sections.map(renderGroupedSection)}
 
-      {/* Simple footer if no footer section */}
-      {!event.sections.some(s => s.type === 'footer') && (
-        <footer className="py-8 text-center bg-event-bg">
-          <p className="font-event-body text-sm text-event-dark/40">
-            {event.title} ♥
+        {/* Footer de contenido (si existe en sections) se renderiza en grouped_sections */}
+        {/* Si no hay sección footer, mostramos mensaje de cierre */}
+        {!event.sections.some(s => s.type === 'footer') && (
+          <FooterSection 
+            key="footer-fallback" 
+            data={{ type: 'footer', message: `${event.title} · Gracias por acompañarnos` }} 
+          />
+        )}
+        {/* Barra final siempre visible */}
+        <footer className="page-footer-strip border-t border-event-primary/20 bg-event-bg/95 py-6 text-center">
+          <p className="font-event-body text-sm text-event-text/50">
+            {event.title} ♥ La Fecha
           </p>
         </footer>
-      )}
-    </main>
+      </main>
+    </ThemeProvider>
   );
 }

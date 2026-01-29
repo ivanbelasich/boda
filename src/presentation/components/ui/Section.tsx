@@ -1,6 +1,8 @@
 import type { ReactNode } from 'react';
+import { useThemeContext } from '../../context/ThemeContext';
+import type { SectionStyle } from '../../../config/theme-variants';
 
-export type SectionVariant = 'light' | 'primary' | 'secondary' | 'transparent';
+export type SectionVariant = 'light' | 'primary' | 'secondary' | 'transparent' | 'gradient' | 'card';
 
 interface SectionProps {
   variant?: SectionVariant;
@@ -15,7 +17,23 @@ const VARIANT_CLASSES: Record<SectionVariant, string> = {
   primary: 'bg-event-primary text-white',
   secondary: 'bg-event-secondary text-white',
   transparent: 'bg-transparent text-event-text',
+  gradient: 'bg-gradient-primary text-white',
+  card: 'bg-event-bg text-event-text',
 };
+
+function getSectionStyleClass(section_style?: SectionStyle): string {
+  switch (section_style) {
+    case 'bordered':
+      return 'section-style-bordered border-y border-event-primary/20';
+    case 'cards':
+      return 'section-style-cards rounded-2xl shadow-soft mx-2 md:mx-6';
+    case 'floating':
+      return 'section-style-floating shadow-medium mx-2 md:mx-4 rounded-2xl';
+    case 'flat':
+    default:
+      return 'section-style-flat';
+  }
+}
 
 export function Section({
   variant = 'light',
@@ -24,21 +42,34 @@ export function Section({
   id,
   full_height = false,
 }: SectionProps) {
+  const theme = useThemeContext();
   const variant_classes = VARIANT_CLASSES[variant];
   const height_classes = full_height ? 'min-h-screen' : '';
+  const section_style_class = theme ? getSectionStyleClass(theme.variant.section_style) : '';
+
+  // Special styling for card variant
+  const card_classes = variant === 'card' 
+    ? 'mx-4 md:mx-auto rounded-3xl shadow-strong my-8' 
+    : '';
 
   return (
     <section
       id={id}
+      data-section-style={theme?.variant.section_style ?? 'flat'}
       className={`
+        section-container
         w-full
         py-16 md:py-24
         ${variant_classes}
         ${height_classes}
+        ${section_style_class}
+        ${card_classes}
         ${className}
+        transition-smooth
+        scroll-snap-child
       `.trim().replace(/\s+/g, ' ')}
     >
-      <div className="max-w-5xl mx-auto px-6">
+      <div className={`max-w-5xl ${variant === 'card' ? '' : 'mx-auto'} px-6`}>
         {children}
       </div>
     </section>
@@ -62,7 +93,7 @@ export function HeroSectionWrapper({
       case 'texture':
         return 'hero-texture-paper';
       case 'gradient':
-        return 'bg-gradient-to-b from-event-light to-event-bg';
+        return 'bg-gradient-soft';
       default:
         return 'bg-event-bg';
     }
@@ -80,6 +111,7 @@ export function HeroSectionWrapper({
         flex flex-col items-center justify-center
         py-12 md:py-20
         relative
+        scroll-snap-child
         ${getBackgroundClass()}
         ${className}
       `.trim().replace(/\s+/g, ' ')}
